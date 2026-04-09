@@ -14,3 +14,21 @@ Content-Type: application/json
 ### 2. Отримати список усіх ігор
 GET {{HostAddress}}/api/games
 Accept: application/json
+
+### Отримати тільки ігри в процесі
+GET {{HostAddress}}/api/games?status=InProgress
+Accept: application/json
+
+### Оновити статус гри (PUT)
+PUT {{HostAddress}}/api/games/1
+Content-Type: application/json
+
+{
+  "title": "Persona 5 Royal - UKR",
+  "description": "Повний переклад",
+  "originalLanguage": "JPN",
+  "translationStatus": "Completed"
+}
+
+### Видалити гру (DELETE)
+DELETE {{HostAddress}}/api/games/1
