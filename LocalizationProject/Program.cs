@@ -1,5 +1,7 @@
 using LocalizationProject;
+using LocalizationProject.Dtos;
 using LocalizationProject.Models;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,11 +38,19 @@ app.MapGet("/api/games", async (string? status, AppDbContext db) =>
     return Results.Ok(games);
 });
 
-app.MapPost("/api/games", async (Game game, AppDbContext db) =>
+app.MapPost("/api/games", async (CreateGameDto dto, AppDbContext db) =>
 {
-    db.Games.Add(game);
+    var newGame = new Game
+    {
+        Title = dto.Title,
+        Description = dto.Description,
+        OriginalLanguage = dto.OriginalLanguage,
+        TranslationStatus = dto.TranslationStatus
+    };
+
+    db.Games.Add(newGame);
     await db.SaveChangesAsync();
-    return Results.Ok(game);
+    return Results.Ok(newGame);
 });
 
 app.MapPut("/api/games/{id}", async (int id, Game updatedGame, AppDbContext db) =>
