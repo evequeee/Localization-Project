@@ -20,13 +20,19 @@ app.MapGet("/api/games/{id}", async (int id, AppDbContext db) =>
     {
         return Results.NotFound();
     }
-    else
-    {
-        return Results.Ok(game);
-    }
+        var gameDto = new GameDto
+        {
+            Id = game.Id,
+            Title = game.Title,
+            Description = game.Description,
+            OriginalLanguage = game.OriginalLanguage,
+            TranslationStatus = game. TranslationStatus,
+            CreatedAt = game.CreatedAt
+        };
+        return Results.Ok(gameDto);
 });
 
-app.MapGet("/api/games", async (string? status, AppDbContext db) =>
+app.MapGet("/api/games", async (string? status, AppDbContext db) =>   //Фільтрація, пошук за статусом перекладу
 {
     var query = db.Games.AsQueryable();
     if (!string.IsNullOrEmpty(status))
@@ -34,7 +40,17 @@ app.MapGet("/api/games", async (string? status, AppDbContext db) =>
         query = query.Where(g => g.TranslationStatus == status);
     }
 
-    var games = await query.ToListAsync();
+    var games = await query
+        .Select(g => new GameDto
+        {
+            Id = g.Id,
+            Title = g.Title,
+            Description = g.Description,
+            OriginalLanguage = g.OriginalLanguage,
+            TranslationStatus = g. TranslationStatus,
+            CreatedAt = g.CreatedAt
+        })
+    .ToListAsync();
     return Results.Ok(games);
 });
 
@@ -53,20 +69,19 @@ app.MapPost("/api/games", async (CreateGameDto dto, AppDbContext db) =>
     return Results.Ok(newGame);
 });
 
-app.MapPut("/api/games/{id}", async (int id, Game updatedGame, AppDbContext db) =>
+app.MapPut("/api/games/{id}", async (int id, UpdateGameDto dto, AppDbContext db) =>
 {
     var game = await db.Games.FindAsync(id);
     if (game == null)
     {
         return Results.NotFound();
     }
-    else
-    {
-        game.Title = updatedGame.Title;
-        game.TranslationStatus = updatedGame.TranslationStatus;
+        game.Title = dto.Title;
+        game.Description = dto.Description;
+        game.OriginalLanguage = dto.OriginalLanguage;
+        game.TranslationStatus = dto.TranslationStatus;
         await db.SaveChangesAsync();
         return Results.NoContent();
-    }
 });
 
 app.MapDelete("/api/games/{id}", async (int id, AppDbContext db) =>

@@ -1,6 +1,6 @@
 @HostAddress = http://localhost:5169
 
-### 1. Додати нову гру
+### Додати нову гру
 POST {{HostAddress}}/api/games
 Content-Type: application/json
 
@@ -11,8 +11,12 @@ Content-Type: application/json
   "translationStatus": "InProgress"
 }
 
-### 2. Отримати список усіх ігор
+### Отримати список усіх ігор
 GET {{HostAddress}}/api/games
+Accept: application/json
+
+### Знайти гру по ID
+GET {{HostAddress}}/api/games/2
 Accept: application/json
 
 ### Отримати тільки ігри в процесі
