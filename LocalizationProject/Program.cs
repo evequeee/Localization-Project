@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using LocalizationProject;
 using LocalizationProject.Dtos;
@@ -57,7 +58,8 @@ app.MapGet("/api/games", async (string? status, AppDbContext db) =>   //Філь
     return Results.Ok(games);
 });
 
-app.MapPost("/api/games", async (CreateGameDto dto, IValidator<CreateGameDto> validator, AppDbContext db) =>{
+app.MapPost("/api/games", async (CreateGameDto dto, IValidator<CreateGameDto> validator, AppDbContext db) =>
+{
     var validationResult = await validator.ValidateAsync(dto);
     if (!validationResult.IsValid)
     {
@@ -76,8 +78,13 @@ app.MapPost("/api/games", async (CreateGameDto dto, IValidator<CreateGameDto> va
     return Results.Ok(newGame);
 });
 
-app.MapPut("/api/games/{id}", async (int id, UpdateGameDto dto, AppDbContext db) =>
+app.MapPut("/api/games/{id}", async (int id, UpdateGameDto dto, IValidator<UpdateGameDto> validator, AppDbContext db) =>
 {
+    var validationResult = await validator.ValidateAsync(dto);
+    if (!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(validationResult.ToDictionary());
+    }
     var game = await db.Games.FindAsync(id);
     if (game == null)
     {
