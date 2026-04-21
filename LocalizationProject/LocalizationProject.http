@@ -5,9 +5,9 @@ POST {{HostAddress}}/api/games
 Content-Type: application/json
 
 {
-  "title": "Persona 3 Reload",
-  "description": "JRPG від Atlus",
-  "originalLanguage": "JPN",
+  "title": "test",
+  "description": "testing",
+  "originalLanguage": "ENG",
   "translationStatus": "InProgress"
 }
 

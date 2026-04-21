@@ -1,6 +1,8 @@
+using FluentValidation;
 using LocalizationProject;
 using LocalizationProject.Dtos;
 using LocalizationProject.Models;
+using LocalizationProject.Validators;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +12,7 @@ builder.Services.AddOpenApi();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString, b => b.MigrationsAssembly("LocalizationProject")));
+builder.Services.AddValidatorsFromAssemblyContaining<CreateGameDtoValidator>();
 
 var app = builder.Build();
 
@@ -54,8 +57,12 @@ app.MapGet("/api/games", async (string? status, AppDbContext db) =>   //Філь
     return Results.Ok(games);
 });
 
-app.MapPost("/api/games", async (CreateGameDto dto, AppDbContext db) =>
-{
+app.MapPost("/api/games", async (CreateGameDto dto, IValidator<CreateGameDto> validator, AppDbContext db) =>{
+    var validationResult = await validator.ValidateAsync(dto);
+    if (!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(validationResult.ToDictionary());
+    }
     var newGame = new Game
     {
         Title = dto.Title,
