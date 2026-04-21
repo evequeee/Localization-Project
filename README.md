@@ -5,16 +5,17 @@
 ## Технологічний стек
 - **Backend:** ASP.NET Core Web API (.NET 10)
 - **Database:** PostgreSQL + Entity Framework Core
+- **Validation:** FluentValidation
+- **Architecture:** DTO (Data Transfer Objects)
 - **Frontend:** React + TypeScript (plans)
 
 ## Вже реалізовано
 - [x] Базова архітектура бази даних (Code-First)
 - [x] Підключення до PostgreSQL
-- [x] CRUD операції для каталогу ігор:
-  - Створення нових карток ігор (POST)
-  - Перегляд каталогу з фільтрацією за статусом (GET)
-  - Оновлення інформації та статусу (PUT)
-  - Видалення проєктів (DELETE)
+- [x] CRUD операції для каталогу ігор
+- [x] Патерн DTO для ізоляції моделей бази даних
+- [x] Строга валідація вхідних даних (FluentValidation)
+- [x] Відношення 1:N у базі (Команди `LocalizationTeam` -> Ігри `Game`)
 
   ## API Ендпоінти (Games)
 
@@ -25,3 +26,19 @@
 | **POST** | `/api/games` | Додати нову гру в каталог | `CreateGameDto` (JSON) |
 | **PUT** | `/api/games/{id}` | Оновити інформацію про існуючу гру | `UpdateGameDto` (JSON) |
 | **DELETE** | `/api/games/{id}` | Видалити гру з каталогу | - |
+
+> **Важливо:** POST та PUT запити проходять сувору валідацію. При некоректних даних сервер повертає статус `400 Bad Request` із деталізацією помилок.
+
+## Як запустити локально
+
+Оскільки пароль до бази даних приховано з міркувань безпеки, для локального запуску необхідно налаштувати локальні секрети (User Secrets).
+
+1. **Клонувати репозиторій та перейти в папку бекенду (де лежить `.csproj`).**
+2. **Ініціалізувати секрети та задати підключення до локальної БД:**
+   ```bash
+   dotnet user-secrets init
+   dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=LocalizationDb;Username=postgres;Password=ТВІЙ_ПАРОЛЬ"
+2. **Оновити базу даних (застосувати міграції):**
+    dotnet ef database update
+4. **Запустити сервер:**
+    dotnet run
