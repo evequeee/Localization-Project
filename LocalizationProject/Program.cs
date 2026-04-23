@@ -94,6 +94,7 @@ app.MapPut("/api/games/{id}", async (int id, UpdateGameDto dto, IValidator<Updat
         game.Description = dto.Description;
         game.OriginalLanguage = dto.OriginalLanguage;
         game.TranslationStatus = dto.TranslationStatus;
+        game.TeamId = dto.TeamId;
         await db.SaveChangesAsync();
         return Results.NoContent();
 });
@@ -112,6 +113,33 @@ app.MapDelete("/api/games/{id}", async (int id, AppDbContext db) =>
         return Results.NoContent();
     }
 });
+
+app.MapGet("/api/teams", async (AppDbContext db) =>
+{
+    var teams = await db.Teams
+        .Select(t => new TeamDto
+        {
+            Id = t.Id,
+            Name = t.Name,
+            ContactEmail = t.ContactEmail
+        })
+    .ToListAsync();
+    return Results.Ok(teams);
+}
+);
+
+app.MapPost("/api/teams", async (CreateTeamDto dto, AppDbContext db) =>
+{
+    var newTeam = new LocalizationTeam
+    {
+        Name = dto.Name,
+        ContactEmail = dto.ContactEmail ?? string.Empty
+    };
+    db.Teams.Add(newTeam);
+    await db.SaveChangesAsync();
+    return Results.Ok(newTeam);
+}
+);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

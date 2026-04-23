@@ -31,7 +31,17 @@ Content-Type: application/json
   "title": "Persona 5 Royal - UKR",
   "description": "Повний переклад",
   "originalLanguage": "JPN",
-  "translationStatus": "Completed"
+  "translationStatus": "Completed",
+  "teamId": 1
+}
+
+### Створити команду
+POST {{HostAddress}}/api/teams
+Content-Type: application/json
+
+{
+  "Name": "Свічники",
+  "ContactEmail": ""
 }
 
 ### Видалити гру (DELETE)

@@ -8,4 +8,5 @@ public class GameDto
     public string OriginalLanguage { get; set; } = string.Empty; // Мова оригіналу
     public string TranslationStatus { get; set; } = "Planned"; // Статус: Planned, InProgress, Completed, Dropped
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public string? TeamName { get; set; }
 }
