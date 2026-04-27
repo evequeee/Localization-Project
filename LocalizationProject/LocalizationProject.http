@@ -24,7 +24,7 @@ GET {{HostAddress}}/api/games?status=InProgress
 Accept: application/json
 
 ### Оновити статус гри (PUT)
-PUT {{HostAddress}}/api/games/1
+PUT {{HostAddress}}/api/games/2
 Content-Type: application/json
 
 {
