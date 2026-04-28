@@ -5,10 +5,10 @@ POST {{HostAddress}}/api/games
 Content-Type: application/json
 
 {
-  "title": "test",
-  "description": "testing",
+  "title": "Crysis",
+  "description": "Українізатор тексту та текстур. Автори: Localize Team.",
   "originalLanguage": "ENG",
-  "translationStatus": "InProgress"
+  "translationStatus": "Completed"
 }
 
 ### Отримати список усіх ігор
@@ -35,12 +35,25 @@ Content-Type: application/json
   "teamId": 1
 }
 
+### 1. Створити локалізацію для гри
+POST {{HostAddress}}/api/localizations
+Content-Type: application/json
+
+{
+  "Language": "Ukrainian",
+  "GameId": 8
+}
+
+### 2. Прив'язати команду до локалізації
+# Маршрут: /api/localizations/{locId}/teams/{teamId}
+POST {{HostAddress}}/api/localizations/1/teams/2
+
 ### Створити команду
 POST {{HostAddress}}/api/teams
 Content-Type: application/json
 
 {
-  "Name": "Свічники",
+  "Name": "Localize Team",
   "ContactEmail": ""
 }
 

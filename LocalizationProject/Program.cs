@@ -45,6 +45,7 @@ app.MapGet("/api/games", async (string? status, AppDbContext db) =>   //Філь
     }
 
     var games = await query
+        .Include( g => g.Localizations)
         .Select(g => new GameDto
         {
             Id = g.Id,
@@ -52,7 +53,8 @@ app.MapGet("/api/games", async (string? status, AppDbContext db) =>   //Філь
             Description = g.Description,
             OriginalLanguage = g.OriginalLanguage,
             TranslationStatus = g. TranslationStatus,
-            CreatedAt = g.CreatedAt
+            CreatedAt = g.CreatedAt,
+            Languages = g.Localizations.Select(l => l.Language).ToList()
         })
     .ToListAsync();
     return Results.Ok(games);
@@ -111,6 +113,51 @@ app.MapDelete("/api/games/{id}", async (int id, AppDbContext db) =>
         await db.SaveChangesAsync();
         return Results.NoContent();
     }
+});
+
+// 1. Створити локалізацію для гри
+app.MapPost("/api/localizations", async (CreateLocalizationDto dto, AppDbContext db) =>
+{
+    var localization = new Localization
+    {
+        Language = dto.Language,
+        GameId = dto.GameId,
+        Status = "In Progress"
+    };
+
+    db.Localizations.Add(localization);
+    await db.SaveChangesAsync();
+    return Results.Created($"/api/localizations/{localization.Id}", localization);
+});
+
+// 2. Прив'язати команду до локалізації (Many-to-Many)
+app.MapPost("/api/localizations/{locId}/teams/{teamId}", async (int locId, int teamId, AppDbContext db) =>
+{
+    var loc = await db.Localizations.Include(l => l.Teams).FirstOrDefaultAsync(l => l.Id == locId);
+    var team = await db.Teams.FindAsync(teamId);
+
+    if (loc == null || team == null) return Results.NotFound("Локалізацію або команду не знайдено");
+
+    loc.Teams.Add(team);
+    await db.SaveChangesAsync();
+
+    return Results.Ok($"Команда {team.Name} тепер працює над перекладом {loc.Language}");
+});
+
+// 3. Отримати всі локалізації з їхніми командами
+app.MapGet("/api/localizations", async (AppDbContext db) =>
+{
+    return await db.Localizations
+        .Include(l => l.Teams)
+        .Select(l => new LocalizationDto
+        {
+            Id = l.Id,
+            Language = l.Language,
+            Status = l.Status,
+            GameId = l.GameId,
+            Teams = l.Teams.Select(t => t.Name).ToList()
+        })
+        .ToListAsync();
 });
 
 app.MapGet("/api/teams", async (AppDbContext db) =>
