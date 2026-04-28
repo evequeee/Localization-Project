@@ -94,7 +94,6 @@ app.MapPut("/api/games/{id}", async (int id, UpdateGameDto dto, IValidator<Updat
         game.Description = dto.Description;
         game.OriginalLanguage = dto.OriginalLanguage;
         game.TranslationStatus = dto.TranslationStatus;
-        game.TeamId = dto.TeamId;
         await db.SaveChangesAsync();
         return Results.NoContent();
 });

@@ -7,4 +7,5 @@ public class LocalizationTeam
     public string Description { get; set; } = string.Empty;
     public string ContactEmail { get; set; } = string.Empty;
     public List<Game> Games { get; set; } = new();
+    public List<Localization> Localizations { get; set; } = new();
 }

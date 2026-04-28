@@ -8,4 +8,5 @@ public class AppDbContext : DbContext
 
     public DbSet<Game> Games { get; set; }
     public DbSet<LocalizationTeam> Teams { get; set;  }
+    public DbSet<Localization> Localizations { get; set; }
 }
