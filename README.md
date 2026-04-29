@@ -8,15 +8,21 @@
 - **Validation:** FluentValidation
 - **Architecture:** DTO (Data Transfer Objects)
 - **Frontend:** React + TypeScript (plans)
+- **Infrastructure:** Docker, Docker Compose
 
 ## Вже реалізовано
 - [x] Базова архітектура бази даних (Code-First)
 - [x] Підключення до PostgreSQL
-- [x] CRUD операції для каталогу ігор
+- [x] CRUD операції для каталогу ігор (GET, POST, PUT, DELETE)
+- [x] Фільтрація ігор за статусом перекладу
+- [x] Сутність `Localization` для управління локалізаціями ігор
+- [x] Сутність `LocalizationTeam` для команд перекладачів
+- [x] Відношення M:N між локалізаціями та командами
 - [x] Патерн DTO для ізоляції моделей бази даних
 - [x] Строга валідація вхідних даних (FluentValidation)
-- [x] Відношення 1:N у базі (Команди `LocalizationTeam` -> Ігри `Game`)
 - [x] Ендпоінти для управління командами перекладачів (GET, POST)
+- [x] Ендпоінти для управління локалізаціями ігор (POST, GET)
+- [x] Ендпоінт для прив'язування команд до локалізацій
 
   ## API Ендпоінти (Games)
 
@@ -35,18 +41,18 @@
 | **GET** | `/api/teams` | Отримати список усіх команд | - |
 | **POST** | `/api/teams` | Додати нову команду | `CreateTeamDto` (JSON) |
 
+## API Ендпоінти (Localizations)
+
+| HTTP Метод | Маршрут | Опис | Тіло запиту |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/api/localizations` | Отримати всі локалізації з їхніми командами | - |
+| **POST** | `/api/localizations` | Створити нову локалізацію для гри | `CreateLocalizationDto` (JSON) |
+| **POST** | `/api/localizations/{locId}/teams/{teamId}` | Прив'язати команду до локалізації | - |
+
 > **Важливо:** POST та PUT запити проходять сувору валідацію. При некоректних даних сервер повертає статус `400 Bad Request` із деталізацією помилок.
 
-## Як запустити локально
+## Швидкий запуск (Docker)
 
-Оскільки пароль до бази даних приховано з міркувань безпеки, для локального запуску необхідно налаштувати локальні секрети (User Secrets).
-
-1. **Клонувати репозиторій та перейти в папку бекенду (де лежить `.csproj`).**
-2. **Ініціалізувати секрети та задати підключення до локальної БД:**
    ```bash
-   dotnet user-secrets init
-   dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=LocalizationDb;Username=postgres;Password=ТВІЙ_ПАРОЛЬ"
-2. **Оновити базу даних (застосувати міграції):**
-    dotnet ef database update
-4. **Запустити сервер:**
-    dotnet run
+   docker-compose up --build
+  Після цього API буде доступне за адресою: http://localhost:8080
