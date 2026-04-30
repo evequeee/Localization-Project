@@ -54,7 +54,11 @@ app.MapGet("/api/games", async (string? status, AppDbContext db) =>   //Філь
             OriginalLanguage = g.OriginalLanguage,
             TranslationStatus = g. TranslationStatus,
             CreatedAt = g.CreatedAt,
-            Languages = g.Localizations.Select(l => l.Language).ToList()
+            Localizations = g.Localizations.Select(l => new LocalizationSummaryDto
+            {
+                Language = l.Language,
+                TeamNames = l.Teams.Select(t => t.Name).ToList()
+            }).ToList()
         })
     .ToListAsync();
     return Results.Ok(games);
