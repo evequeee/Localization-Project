@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LocalizationProject.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260430201803_InitialFinalCreate")]
-    partial class InitialFinalCreate
+    [Migration("20260504204340_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

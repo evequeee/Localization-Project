@@ -21,13 +21,27 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost3000", "http://localhost:5173")
+        policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
+
+// Apply pending migrations
+try
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.Migrate();
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error applying migrations: {ex.Message}");
+}
 
 app.UseCors("AllowFrontend");
 
