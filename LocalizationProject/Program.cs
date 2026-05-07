@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Apply pending migrations
+// pending migrations
 try
 {
     using (var scope = app.Services.CreateScope())

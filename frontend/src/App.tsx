@@ -3,6 +3,7 @@ import { Navbar } from './components/Navbar';
 import { Home } from './pages/Home';
 import { GamesList } from './pages/GamesList';
 import { Teams } from './pages/Teams';
+import { AddGame } from './pages/AddGame';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/games" element={<GamesList />} />
             <Route path="/teams" element={<Teams />} />
+            <Route path="/add-game" element={<AddGame />} />
           </Routes>
         </main>
       </div>
