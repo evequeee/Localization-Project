@@ -4,6 +4,7 @@ import { Home } from './pages/Home';
 import { GamesList } from './pages/GamesList';
 import { Teams } from './pages/Teams';
 import { AddGame } from './pages/AddGame';
+import { AddLocalization } from './pages/AddLocalization';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
             <Route path="/games" element={<GamesList />} />
             <Route path="/teams" element={<Teams />} />
             <Route path="/add-game" element={<AddGame />} />
+            <Route path="/add-localization/:gameId" element={<AddLocalization />} />
           </Routes>
         </main>
       </div>

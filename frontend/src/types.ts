@@ -1,4 +1,5 @@
 export interface LocalizationSummary {
+  status: string;
   language: string;
   teamNames: string[];
 }

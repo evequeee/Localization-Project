@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CustomSelect } from '../components/CustomSelect'; // Імпортуємо наш новий компонент
+import axios from 'axios';
 
 // Опції для мов
 const languageOptions = [
@@ -28,23 +29,29 @@ export const AddGame = () => {
     description: ''
   });
 
-  // Стандартна функція для input та textarea
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Нова функція для кастомних селектів (збирає ім'я та значення напряму)
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Тут потім буде axios.post
-    console.log("Дані готові:", formData);
-    alert(`Гру "${formData.title}" успішно зібрано!`);
-    navigate('/games');
+    
+    try {
+      const response = await axios.post('http://localhost:8080/api/games', formData);
+      
+      if (response.status === 201 || response.status === 200) {
+        alert(`Гру "${formData.title}" успішно додано до Midnight Channel! 📺`);
+        navigate('/games');
+      }
+    } catch (error) {
+      console.error("Помилка при додаванні гри:", error);
+      alert("Щось пішло не так.");
+    }
   };
 
   return (
