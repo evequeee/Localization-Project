@@ -1,5 +1,6 @@
 import type { Game } from '../types';
 import { Link } from 'react-router-dom';
+import { RoleBasedRender } from './ProtectedRoute';
 
 interface GameCardProps {
   game: Game;
@@ -27,7 +28,7 @@ export const GameCard = ({ game }: GameCardProps) => {
             <span className="text-xs text-p4yellow uppercase font-black tracking-widest">🌍 Переклади:</span>
             {game.localizations.map((loc, i) => (
               <div key={i} className="text-sm mt-2">
-                <span className="font-bold text-white bg-p4black px-2 py-1 rounded">
+                <span className="font-bold text-white bg-p4black px-2 py-1 border border-p4yellow">
                   {loc.language}
                 </span> 
                 <span className="text-gray-400 ml-2">
@@ -38,7 +39,7 @@ export const GameCard = ({ game }: GameCardProps) => {
                 </span>
               </div>
             ))}
-            
+
           </>
         ) : (
           <div className="text-sm text-gray-500 italic">Переклади відсутні</div>
@@ -46,12 +47,21 @@ export const GameCard = ({ game }: GameCardProps) => {
       </div>
 
       {/* КНОПКА ПРИВ'ЯЗКИ */}
-      <Link 
-        to={`/add-localization/${game.id}`}
-        className="block text-center bg-transparent border-2 border-p4yellow text-p4yellow font-black uppercase tracking-widest py-2 mt-2 hover:bg-p4yellow hover:text-black transition-colors duration-200"
+      <RoleBasedRender 
+        requiredRoles={['User', 'TeamAdmin', 'Root']}
+        fallback={
+          <div className="text-center bg-gray-800 border-2 border-gray-600 text-gray-400 font-black uppercase tracking-widest py-2 mt-2 text-sm">
+            Увійдіть для додавання перекладів
+          </div>
+        }
       >
-        + Додати переклад
-      </Link>
+        <Link 
+          to={`/add-localization/${game.id}`}
+          className="block text-center bg-transparent border-2 border-p4yellow text-p4yellow font-black uppercase tracking-widest py-2 mt-2 hover:bg-p4yellow hover:text-black transition-colors duration-200"
+        >
+          + Додати переклад
+        </Link>
+      </RoleBasedRender>
     </div>
   );
 };

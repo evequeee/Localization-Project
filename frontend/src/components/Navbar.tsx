@@ -9,13 +9,8 @@ export const Navbar = () => {
       
       <div className="flex items-center gap-8 font-bold uppercase tracking-widest text-sm">
         <Link to="/" className="hover:text-white transition-colors duration-200">Головна</Link>
-        <Link to="/games" className="hover:text-white transition-colors duration-200">Ігри</Link>
-        <Link to="/teams" className="hover:text-white transition-colors duration-200">Команди</Link>
-        <Link 
-          to="/add-game" 
-          className="bg-p4black text-p4yellow px-4 py-2 border-2 border-black hover:bg-white hover:text-black transition-colors duration-200"
-        >
-          + Додати гру
+        <Link to="/login" className="bg-p4black text-p4yellow px-4 py-2 border-2 border-black hover:bg-white hover:text-black transition-colors duration-200">
+          Вхід
         </Link>
       </div>
     </nav>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 // Тимчасовий інтерфейс (потім винести в types.ts)
@@ -38,9 +39,12 @@ export const Teams = () => {
         <h1 className="text-5xl font-black text-p4yellow uppercase tracking-tighter drop-shadow-md">
           Localization Teams
         </h1>
-        <button className="bg-white text-black font-black py-2 px-6 border-b-4 border-r-4 border-p4yellow hover:bg-p4yellow transition-all active:translate-y-1 active:border-0">
+        <Link 
+          to="/add-team"
+          className="bg-white text-black font-black py-2 px-6 border-b-4 border-r-4 border-p4yellow hover:bg-p4yellow transition-all active:translate-y-1 active:border-0 inline-block"
+        >
           + ЗАРЕЄСТРУВАТИ КОМАНДУ
-        </button>
+        </Link>
       </div>
 
       <div className="grid gap-8 md:grid-cols-2">
