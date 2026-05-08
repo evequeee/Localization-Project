@@ -1,15 +1,30 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using LocalizationProject;
-using LocalizationProject.Dtos;
 using LocalizationProject.Endpoints;
 using LocalizationProject.Middlewares;
 using LocalizationProject.Models;
 using LocalizationProject.Validators;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddIdentity<AppUser, IdentityRole<int>>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 6;
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
+
+// поки порожньо
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
 
 builder.Services.AddOpenApi();
 
@@ -46,6 +61,9 @@ catch (Exception ex)
 app.UseCors("AllowFrontend");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Map all endpoints
 app.MapGameEndpoints();
