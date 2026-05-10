@@ -7,7 +7,11 @@
 - **Database:** PostgreSQL + Entity Framework Core
 - **Validation:** FluentValidation
 - **Architecture:** DTO (Data Transfer Objects)
-- **Frontend:** React + TypeScript (plans)
+- **Authentication:** JWT (JSON Web Tokens), ASP.NET Core Identity
+- **Frontend:** React 18 + TypeScript + Vite
+- **Styling:** Tailwind CSS
+- **State Management:** React Context API
+- **Routing:** React Router v7
 - **Infrastructure:** Docker, Docker Compose
 
 ## Вже реалізовано
@@ -23,6 +27,52 @@
 - [x] Ендпоінти для управління командами перекладачів (GET, POST)
 - [x] Ендпоінти для управління локалізаціями ігор (POST, GET)
 - [x] Ендпоінт для прив'язування команд до локалізацій
+- [x] **Аутентифікація:** JWT токени, реєстрація та вхід
+- [x] **RBAC (Role-Based Access Control):** Ролі Root, TeamAdmin, User, Guest
+- [x] **Frontend:** React компоненти з Persona 4 Golden дизайном
+- [x] **Frontend Маршрутизація:** Публічні та захищені маршрути з перевіркою ролей
+- [x] **Frontend Компоненти:** AuthContext, useAuth, ProtectedRoute, ErrorBoundary
+- [x] **Frontend Сторінки:** Login, Register, Home, GamesList, Teams, AddGame, AddLocalization, AddTeam
+
+## API Ендпоінти (Authentication)
+
+| HTTP Метод | Маршрут | Опис | Тіло запиту | Відповідь |
+| :--- | :--- | :--- | :--- | :--- |
+| **POST** | `/api/auth/register` | Реєстрація нового користувача | `{ email, password }` | `{ token, user: { id, email, role } }` |
+| **POST** | `/api/auth/login` | Вхід користувача | `{ email, password }` | `{ token, user: { id, email, role } }` |
+
+### Ролі користувачів та права доступу
+
+| Роль | Доступ | Дії |
+| :--- | :--- | :--- |
+| **Guest** | Публічні сторінки | Переглядання Home, /login, /register |
+| **User** | Базовий доступ | Переглядання ігор, команд, додавання перекладів |
+| **TeamAdmin** | Адміністратор команди | Ті ж, що й у User + додавання ігор для своєї команди |
+| **Root** | Суперадміністратор | Все + управління всіма даними |
+
+## Налаштування розробки
+
+### Backend запуск
+```bash
+cd LocalizationProject
+dotnet run
+# API доступне на http://localhost:8080
+```
+
+### Frontend запуск
+```bash
+cd frontend
+npm install
+npm run dev
+# Frontend доступне на http://localhost:5173 (або 5174, 5175 якщо порти зайняті)
+```
+
+### Docker запуск (обидва сервіси)
+```bash
+docker-compose up --build
+# Backend: http://localhost:8080
+# Frontend буде доступне на http://localhost:3000 (якщо налаштовано в Dockerfile)
+```
 
   ## API Ендпоінти (Games)
 
@@ -53,6 +103,10 @@
 
 ## Швидкий запуск (Docker)
 
-   ```bash
-   docker-compose up --build
-  Після цього API буде доступне за адресою: http://localhost:8080
+```bash
+docker-compose up --build
+```
+
+Після цього:
+- **API (Backend)** буде доступне за адресою: http://localhost:8080
+- **Frontend** розробляється локально на http://localhost:5173 (або далі)
