@@ -74,18 +74,28 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// pending migrations
 try
 {
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         db.Database.Migrate();
+
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+        var roles = new[] { UserRoles.Admin, UserRoles.TeamAdmin, UserRoles.User };
+
+        foreach (var role in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole<int>(role));
+            }
+        }
     }
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"Error applying migrations: {ex.Message}");
+    Console.WriteLine($"Error applying migrations or seeding roles: {ex.Message}");
 }
 
 app.UseCors("AllowFrontend");

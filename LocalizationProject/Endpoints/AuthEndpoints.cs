@@ -12,7 +12,7 @@ public static class AuthEndpoints
         var group = app.MapGroup("/api/auth").WithTags("Auth");
 
         // Ендпоінт реєстрації
-        group.MapPost("/register", async (RegisterDto dto, UserManager<AppUser> userManager) =>
+        group.MapPost("/register", async (RegisterDto dto, UserManager<AppUser> userManager, ITokenService tokenService) =>
         {
             var user = new AppUser { UserName = dto.Email, Email = dto.Email };
             
@@ -27,7 +27,19 @@ public static class AuthEndpoints
             // За замовчуванням у всіх нових користувачів роль User
             await userManager.AddToRoleAsync(user, UserRoles.User);
 
-            return Results.Ok(new { Message = "Користувача успішно зареєстровано!" });
+            var roles = await userManager.GetRolesAsync(user);
+            var token = tokenService.CreateToken(user, roles);
+
+            return Results.Ok(new AuthResponseDto
+            {
+                Token = token,
+                User = new UserResponseDto
+                {
+                    Id = user.Id,
+                    Email = user.Email!,
+                    Role = UserRoles.User
+                }
+            });
         });
 
         // Ендпоінт логіну
@@ -42,12 +54,19 @@ public static class AuthEndpoints
 
             var roles = await userManager.GetRolesAsync(user);
             var token = tokenService.CreateToken(user, roles);
+            
+            // Беремо першу роль (або User як за замовчуванням)
+            var primaryRole = roles.Count > 0 ? roles[0] : UserRoles.User;
 
             return Results.Ok(new AuthResponseDto
             {
-                Email = user.Email!,
                 Token = token,
-                Roles = roles
+                User = new UserResponseDto
+                {
+                    Id = user.Id,
+                    Email = user.Email!,
+                    Role = primaryRole
+                }
             });
         });
     }
