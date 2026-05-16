@@ -3,6 +3,7 @@ using LocalizationProject.Dtos;
 using LocalizationProject.Models;
 using LocalizationProject.Validators;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LocalizationProject.Endpoints;
 
@@ -14,9 +15,9 @@ public static class GameEndpoints
 
         group.MapGet("/{id}", GetGameById);
         group.MapGet("/", GetAllGames);
-        group.MapPost("/", CreateGame);
-        group.MapPut("/{id}", UpdateGame);
-        group.MapDelete("/{id}", DeleteGame);
+        group.MapPost("/", [Authorize(Roles = $"{UserRoles.Admin}")] async (CreateGameDto dto, IValidator<CreateGameDto> validator, AppDbContext db) => await CreateGame(dto, validator, db));
+        group.MapPut("/{id}", [Authorize(Roles = $"{UserRoles.Admin},{UserRoles.TeamAdmin}")] async (int id, UpdateGameDto dto, IValidator<UpdateGameDto> validator, AppDbContext db) => await UpdateGame(id, dto, validator, db));
+        group.MapDelete("/{id}", [Authorize(Roles = $"{UserRoles.Admin}")] async (int id, AppDbContext db) => await DeleteGame(id, db));
     }
 
     private static async Task<IResult> GetGameById(int id, AppDbContext db)

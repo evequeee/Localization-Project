@@ -1,6 +1,7 @@
 using LocalizationProject.Dtos;
 using LocalizationProject.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LocalizationProject.Endpoints;
 
@@ -11,7 +12,7 @@ public static class TeamEndpoints
         var group = app.MapGroup("/api/teams");
 
         group.MapGet("/", GetAllTeams);
-        group.MapPost("/", CreateTeam);
+        group.MapPost("/", [Authorize(Roles = $"{UserRoles.Admin}")] async (CreateTeamDto dto, AppDbContext db) => await CreateTeam(dto, db));
     }
 
     private static async Task<IResult> GetAllTeams(AppDbContext db)
