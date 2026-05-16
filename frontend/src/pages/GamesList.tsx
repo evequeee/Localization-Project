@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiGet } from '../services/api';
 import type { Game } from '../types';
 import { GameCard } from '../components/GameCard';
 
@@ -8,8 +8,8 @@ export const GamesList = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:8080/api/games')
-      .then(res => { setGames(res.data); setLoading(false); })
+    apiGet('/api/games')
+      .then(res => { setGames(res); setLoading(false); })
       .catch(err => { console.error(err); setLoading(false); });
   }, []);
 

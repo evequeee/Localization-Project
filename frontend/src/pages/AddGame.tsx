@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CustomSelect } from '../components/CustomSelect'; // Імпортуємо наш новий компонент
-import axios from 'axios';
+import { CustomSelect } from '../components/CustomSelect';
+import { apiPost } from '../services/api';
 
 // Опції для мов
 const languageOptions = [
@@ -42,12 +42,10 @@ export const AddGame = () => {
     e.preventDefault();
     
     try {
-      const response = await axios.post('http://localhost:8080/api/games', formData);
+      const response = await apiPost('/api/games', formData);
       
-      if (response.status === 201 || response.status === 200) {
-        alert(`Гру "${formData.title}" успішно додано до Midnight Channel! 📺`);
-        navigate('/games');
-      }
+      alert(`Гру "${formData.title}" успішно додано до Midnight Channel! 📺`);
+      navigate('/games');
     } catch (error) {
       console.error("Помилка при додаванні гри:", error);
       alert("Щось пішло не так.");

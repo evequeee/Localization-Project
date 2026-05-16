@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { apiGet } from '../services/api';
 
 // Тимчасовий інтерфейс (потім винести в types.ts)
 interface Team {
@@ -15,9 +15,9 @@ export const Teams = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:8080/api/teams')
+    apiGet('/api/teams')
       .then(res => {
-        setTeams(res.data);
+        setTeams(res);
         setLoading(false);
       })
       .catch(err => {

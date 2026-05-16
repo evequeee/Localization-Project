@@ -1,6 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 export const Navbar = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   return (
     <nav className="bg-p4yellow text-p4black px-8 py-4 shadow-lg border-b-4 border-black flex justify-between items-center relative z-10">
       <div className="text-3xl font-black uppercase tracking-tighter flex items-center gap-2">
@@ -9,9 +18,27 @@ export const Navbar = () => {
       
       <div className="flex items-center gap-8 font-bold uppercase tracking-widest text-sm">
         <Link to="/" className="hover:text-white transition-colors duration-200">Головна</Link>
-        <Link to="/login" className="bg-p4black text-p4yellow px-4 py-2 border-2 border-black hover:bg-white hover:text-black transition-colors duration-200">
-          Вхід
-        </Link>
+        
+        {isAuthenticated && user ? (
+          <>
+            <span className="text-p4black">👤 {user.email}</span>
+            <button 
+              onClick={handleLogout}
+              className="bg-p4black text-p4yellow px-4 py-2 border-2 border-black hover:bg-white hover:text-black transition-colors duration-200"
+            >
+              Вихід
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" className="bg-p4black text-p4yellow px-4 py-2 border-2 border-black hover:bg-white hover:text-black transition-colors duration-200">
+              Вхід
+            </Link>
+            <Link to="/register" className="bg-p4black text-p4yellow px-4 py-2 border-2 border-black hover:bg-white hover:text-black transition-colors duration-200">
+              Реєстр
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );

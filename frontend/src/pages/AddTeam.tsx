@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../hooks/useAuth';
+import { apiPost } from '../services/api';
 
 export const AddTeam = () => {
   const navigate = useNavigate();
-  const { token } = useAuth();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -27,25 +25,14 @@ export const AddTeam = () => {
     setLoading(true);
 
     try {
-      // POST запит до /api/teams з Authorization заголовком
-      const response = await axios.post(
-        'http://localhost:8080/api/teams',
-        formData,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      // POST запит до /api/teams з apiPost (токен додається автоматично)
+      const response = await apiPost('/api/teams', formData);
 
-      if (response.status === 201 || response.status === 200) {
-        alert(`Команда "${formData.name}" успішно зареєстрована! 🎬`);
-        navigate('/teams');
-      }
+      alert(`Команда "${formData.name}" успішно зареєстрована! 🎬`);
+      navigate('/teams');
     } catch (err: any) {
       console.error('Помилка при додаванні команди:', err);
-      setError(err.response?.data?.message || 'Помилка при реєстрації команди.');
+      setError(err.message || 'Помилка при реєстрації команди.');
     } finally {
       setLoading(false);
     }

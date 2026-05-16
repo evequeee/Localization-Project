@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { apiGet, apiPost } from '../services/api';
 import { CustomSelect } from '../components/CustomSelect';
 
 // Тимчасові мови (потім можна теж тягнути з бази)
@@ -32,9 +32,9 @@ export const AddLocalization = () => {
 
 
   useEffect(() => {
-    axios.get('http://localhost:8080/api/teams')
+    apiGet('/api/teams')
       .then(res => {
-        const options = res.data.map((team: any) => ({
+        const options = res.map((team: any) => ({
           value: team.id.toString(),
           label: team.name
         }));
@@ -72,8 +72,8 @@ export const AddLocalization = () => {
       
       console.log("Відправляємо прив'язку:", payload);
       
-      const response = await axios.post('http://localhost:8080/api/localizations', payload);
-      console.log("Відповідь сервера:", response.data);
+      const response = await apiPost('/api/localizations', payload);
+      console.log("Відповідь сервера:", response);
       
       alert(`Переклад успішно прив'язано до гри #${formData.gameId}!`);
       navigate('/games');
