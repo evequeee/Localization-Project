@@ -23,13 +23,21 @@ export const AddTeam = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
     try {
-      // POST запит до /api/teams з apiPost (токен додається автоматично)
-      const response = await apiPost('/api/teams', formData);
+      await apiPost('/api/teams', formData);
 
-      alert(`Команда "${formData.name}" успішно зареєстрована! 🎬`);
-      navigate('/teams');
+      setFormData({
+        name: '',
+        description: '',
+        website: ''
+      });
+
+      // Редірект через 1.5 секунди
+      setTimeout(() => {
+        navigate('/teams');
+      }, 1500);
     } catch (err: any) {
       console.error('Помилка при додаванні команди:', err);
       setError(err.message || 'Помилка при реєстрації команди.');
