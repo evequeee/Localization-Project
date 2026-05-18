@@ -91,6 +91,35 @@ try
                 await roleManager.CreateAsync(new IdentityRole<int>(role));
             }
         }
+
+        // Seed Admin користувача
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+        
+        var adminEmail = "admin@test.com";
+        var adminPassword = "Admin123!";
+        
+        var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
+        if (existingAdmin == null)
+        {
+            var adminUser = new AppUser 
+            { 
+                UserName = adminEmail, 
+                Email = adminEmail,
+                EmailConfirmed = true
+            };
+            
+            var result = await userManager.CreateAsync(adminUser, adminPassword);
+            
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, UserRoles.Admin);
+                Console.WriteLine($"✅ Admin користувач створено: {adminEmail}");
+            }
+            else
+            {
+                Console.WriteLine($"❌ Помилка створення admin користувача: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
+        }
     }
 }
 catch (Exception ex)

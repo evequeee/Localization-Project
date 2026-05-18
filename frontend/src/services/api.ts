@@ -3,7 +3,7 @@
  * Додає токен до всіх запитів та обробляє 401 помилки
  */
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'http://localhost:5169';
 
 // Функція для отримання токена з localStorage
 function getToken(): string | null {
