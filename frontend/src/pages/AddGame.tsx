@@ -50,6 +50,19 @@ export const AddGame = () => {
     setSuccess('');
     setLoading(true);
 
+    // Базова валідація
+    if (!formData.title.trim()) {
+      setError('Назва гри є обов\'язковою!');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.description.trim()) {
+      setError('Опис гри є обов\'язковим!');
+      setLoading(false);
+      return;
+    }
+
     try {
       await apiPost('/api/games', formData);
       

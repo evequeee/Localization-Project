@@ -75,6 +75,37 @@ export async function apiPost(endpoint: string, data?: any): Promise<any> {
     }
 
     if (!response.ok) {
+      try {
+        const errorData = await response.json();
+        
+        // Обробка валідаційних помилок з ProblemDetails
+        if (errorData.errors) {
+          const errorMessages = Object.entries(errorData.errors)
+            .map(([field, messages]: [string, any]) => {
+              const msgs = Array.isArray(messages) ? messages : [messages];
+              return `${field}: ${msgs.join(', ')}`;
+            })
+            .join('\n');
+          throw new Error(errorMessages);
+        }
+        
+        // Обробка error message з відповіді
+        if (errorData.message) {
+          throw new Error(errorData.message);
+        }
+        
+        // Обробка title з ProblemDetails
+        if (errorData.title) {
+          throw new Error(errorData.title);
+        }
+      } catch (parseError) {
+        // Якщо помилка з парсингу JSON, використовуємо статус
+        if (parseError instanceof SyntaxError) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        throw parseError;
+      }
+      
       throw new Error(`HTTP ${response.status}`);
     }
 

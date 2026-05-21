@@ -7,11 +7,11 @@ export const AddTeam = () => {
 
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
-    website: ''
+    contactEmail: ''
   });
 
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -24,14 +24,29 @@ export const AddTeam = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess('');
+
+    // Базова валідація
+    if (!formData.name.trim()) {
+      setError('Назва команди є обов\'язковою!');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
+      setError('Будь ласка, введіть валідну email-адресу!');
+      setLoading(false);
+      return;
+    }
 
     try {
       await apiPost('/api/teams', formData);
 
+      setSuccess(`✅ Команду "${formData.name}" успішно зареєстровано! 🚀`);
+
       setFormData({
         name: '',
-        description: '',
-        website: ''
+        contactEmail: ''
       });
 
       // Редірект через 1.5 секунди
@@ -67,6 +82,13 @@ export const AddTeam = () => {
           </div>
         )}
 
+        {/* Повідомлення про успіх */}
+        {success && (
+          <div className="mb-6 bg-green-900 border-2 border-green-600 text-white p-4 font-bold uppercase tracking-widest text-sm">
+            {success}
+          </div>
+        )}
+
         <div className="flex flex-col gap-6">
 
           {/* Назва команди */}
@@ -78,41 +100,27 @@ export const AddTeam = () => {
               type="text"
               name="name"
               required
+              disabled={loading}
               value={formData.name}
               onChange={handleInputChange}
               placeholder="Наприклад: Dragon Slayers Localization"
-              className="bg-p4black text-white border-2 border-gray-600 p-3 font-bold outline-none transition-colors duration-200 focus:border-p4yellow focus:bg-p4yellow focus:text-black placeholder-gray-500"
+              className="bg-p4black text-white border-2 border-gray-600 p-3 font-bold outline-none transition-colors duration-200 focus:border-p4yellow focus:bg-p4yellow focus:text-black placeholder-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
-          {/* Опис */}
+          {/* Email контакту */}
           <div className="flex flex-col">
             <label className="text-p4yellow font-bold uppercase tracking-widest text-sm mb-2">
-              Опис команди
-            </label>
-            <textarea
-              name="description"
-              required
-              value={formData.description}
-              onChange={handleInputChange}
-              rows={5}
-              placeholder="Розповідайте про вашу команду: спеціалізація, досвід, мови локалізації..."
-              className="bg-p4black text-white border-2 border-gray-600 p-3 font-bold outline-none transition-colors duration-200 focus:border-p4yellow focus:bg-p4yellow focus:text-black placeholder-gray-500 resize-none"
-            />
-          </div>
-
-          {/* Вебсайт */}
-          <div className="flex flex-col">
-            <label className="text-p4yellow font-bold uppercase tracking-widest text-sm mb-2">
-              Вебсайт (опціонально)
+              Email для зв'язку
             </label>
             <input
-              type="url"
-              name="website"
-              value={formData.website}
+              type="email"
+              name="contactEmail"
+              disabled={loading}
+              value={formData.contactEmail}
               onChange={handleInputChange}
-              placeholder="https://yourteam.com"
-              className="bg-p4black text-white border-2 border-gray-600 p-3 font-bold outline-none transition-colors duration-200 focus:border-p4yellow focus:bg-p4yellow focus:text-black placeholder-gray-500"
+              placeholder="contact@yourteam.com"
+              className="bg-p4black text-white border-2 border-gray-600 p-3 font-bold outline-none transition-colors duration-200 focus:border-p4yellow focus:bg-p4yellow focus:text-black placeholder-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -120,7 +128,7 @@ export const AddTeam = () => {
           <button
             type="submit"
             disabled={loading}
-            className="mt-6 bg-p4yellow text-p4black border-4 border-black font-black uppercase tracking-widest text-xl py-4 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1"
+            className="mt-6 bg-p4yellow text-p4black border-4 border-black font-black uppercase tracking-widest text-xl py-4 hover:bg-white hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1"
           >
             {loading ? 'Реєстрація...' : 'Створити команду'}
           </button>
@@ -131,7 +139,7 @@ export const AddTeam = () => {
       {/* Інформація */}
       <div className="mt-10 bg-p4gray border-l-4 border-p4yellow p-6">
         <p className="text-sm text-gray-300 font-bold leading-relaxed">
-          <span className="text-p4yellow">ℹ️ Примітка:</span> Після реєстрації команди ви можете запрошувати інших перекладачів та розпочати роботу над локалізацією ігор. Адміністратор додасть вас до списку верифікованих команд.
+          <span className="text-p4yellow">ℹ️ Примітка:</span> Після реєстрації команди вона буде в статусі очікування верифікації від адміністратора. Ви зможете розпочати роботу та запрошувати інших перекладачів після схвалення.
         </p>
       </div>
     </div>
