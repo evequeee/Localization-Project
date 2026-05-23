@@ -1,6 +1,7 @@
-import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import type { ReactNode } from 'react';
+import type React from 'react';
 import type { UserRole } from '../context/AuthContext';
 
 interface ProtectedRouteProps {
@@ -43,10 +44,6 @@ export const ProtectedRoute = ({
 /**
  * HOC для обгортання сторінок з захистом за ролями
  */
-interface WithProtectionProps {
-  requiredRoles?: UserRole[];
-}
-
 export function withProtection<P extends object>(
   Component: React.ComponentType<P>,
   requiredRoles?: UserRole[]
@@ -78,7 +75,7 @@ export const RoleBasedRender = ({
     const { hasPermission } = useAuth();
     return hasPermission(requiredRoles) ? <>{children}</> : fallback;
   } catch (err) {
-    // Якщо useAuth викине помилку (компонент не в AuthProvider), показуємо fallback
+    console.error('Помилка при перевірці прав:', err);
     return fallback;
   }
 };

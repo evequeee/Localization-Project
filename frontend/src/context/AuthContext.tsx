@@ -1,11 +1,20 @@
 import { createContext, useState, useCallback, type ReactNode } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
-export type UserRole = 'Guest' | 'User' | 'TeamAdmin' | 'Root';
+export type UserRole = 'Admin' | 'TeamAdmin' | 'User';
 
 export interface User {
   id: number;
   email: string;
   role: UserRole;
+}
+
+interface JwtPayload {
+  sub?: string;
+  email?: string;
+  role?: string;
+  'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'?: string;
+  [key: string]: any;
 }
 
 export interface AuthContextType {
@@ -18,6 +27,27 @@ export interface AuthContextType {
   logout: () => void;
   hasRole: (role: UserRole | UserRole[]) => boolean;
   hasPermission: (requiredRoles: UserRole[]) => boolean;
+}
+
+// Функція для декодування JWT токена та витягування ролі
+function extractRoleFromToken(token: string): UserRole | null {
+  try {
+    const decoded = jwtDecode<JwtPayload>(token);
+    
+    // Спробуємо витягти роль з різних полів JWT
+    const role = decoded.role || 
+                 decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+                 decoded['role'];
+    
+    if (role && ['Admin', 'TeamAdmin', 'User'].includes(role)) {
+      return role as UserRole;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Помилка при декодуванні токена:', error);
+    return null;
+  }
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -65,9 +95,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       const data = await response.json();
       
-      // data повинна мати структуру: { token: string, user: { id, email, role } }
       const newToken = data.token;
-      const newUser: User = data.user;
+      
+      // Декодуємо токен, щоб витягти роль
+      const role = extractRoleFromToken(newToken);
+      
+      if (!role) {
+        throw new Error('Неможливо витягти роль з токена');
+      }
+
+      // Декодуємо user ID з токена (або використовуємо з response)
+      let userId: number;
+      try {
+        const decoded = jwtDecode<JwtPayload>(newToken);
+        userId = parseInt(decoded.sub || '0', 10) || Math.random() * 10000;
+      } catch {
+        userId = Math.random() * 10000;
+      }
+
+      const newUser: User = {
+        id: userId,
+        email: email,
+        role: role
+      };
 
       setToken(newToken);
       setUser(newUser);
@@ -99,7 +149,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const data = await response.json();
 
       const newToken = data.token;
-      const newUser: User = data.user;
+      
+      // Декодуємо токен, щоб витягти роль
+      const role = extractRoleFromToken(newToken);
+      
+      if (!role) {
+        throw new Error('Неможливо витягти роль з токена');
+      }
+
+      // Декодуємо user ID з токена
+      let userId: number;
+      try {
+        const decoded = jwtDecode<JwtPayload>(newToken);
+        userId = parseInt(decoded.sub || '0', 10) || Math.random() * 10000;
+      } catch {
+        userId = Math.random() * 10000;
+      }
+
+      const newUser: User = {
+        id: userId,
+        email: email,
+        role: role
+      };
 
       setToken(newToken);
       setUser(newUser);

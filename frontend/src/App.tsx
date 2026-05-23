@@ -17,8 +17,8 @@ import { ApiTesterPage } from './pages/ApiTesterPage';
 const ProtectedGamesList = withProtection(GamesList);
 const ProtectedTeams = withProtection(Teams);
 const ProtectedAddTeam = withProtection(AddTeam);
-const ProtectedAddGame = withProtection(AddGame, ['Root', 'TeamAdmin']);
-const ProtectedAddLocalization = withProtection(AddLocalization, ['User', 'TeamAdmin', 'Root']);
+const ProtectedAddGame = withProtection(AddGame, ['Admin']);
+const ProtectedAddLocalization = withProtection(AddLocalization, ['User', 'TeamAdmin', 'Admin']);
 const ProtectedApiTester = withProtection(ApiTesterPage, ['Admin']);
 
 function App() {

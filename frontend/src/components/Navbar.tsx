@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { RoleBasedRender } from './ProtectedRoute';
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -21,7 +22,36 @@ export const Navbar = () => {
         
         {isAuthenticated && user ? (
           <>
+            <Link to="/games" className="hover:text-white transition-colors duration-200">Ігри</Link>
+            
+            {/* Кнопка "Додати гру" - тільки для Admin */}
+            <RoleBasedRender
+              requiredRoles={['Admin']}
+              fallback={null}
+            >
+              <Link 
+                to="/add-game" 
+                className="bg-p4black text-p4yellow px-4 py-2 border-2 border-black hover:bg-white hover:text-black transition-colors duration-200 font-bold"
+              >
+                + Гра
+              </Link>
+            </RoleBasedRender>
+            
+            {/* Кнопка "Додати команду" */}
+            <Link 
+              to="/add-team" 
+              className="bg-p4black text-p4yellow px-4 py-2 border-2 border-black hover:bg-white hover:text-black transition-colors duration-200 font-bold"
+            >
+              + Команда
+            </Link>
+
             <span className="text-p4black">👤 {user.email}</span>
+            
+            {/* Ролі користувача - для відладки */}
+            <span className="text-xs bg-p4black text-p4yellow px-2 py-1 border border-p4black rounded">
+              {user.role}
+            </span>
+            
             <button 
               onClick={handleLogout}
               className="bg-p4black text-p4yellow px-4 py-2 border-2 border-black hover:bg-white hover:text-black transition-colors duration-200"
