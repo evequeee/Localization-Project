@@ -8,4 +8,5 @@ public class LocalizationTeam
     public string ContactEmail { get; set; } = string.Empty;
     public List<Game> Games { get; set; } = new();
     public List<Localization> Localizations { get; set; } = new();
+    public List<TeamJoinRequest> JoinRequests { get; set; } = new();
 }

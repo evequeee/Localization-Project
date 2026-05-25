@@ -11,6 +11,7 @@ public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
     public DbSet<Game> Games { get; set; }
     public DbSet<LocalizationTeam> Teams { get; set;  }
     public DbSet<Localization> Localizations { get; set; }
+    public DbSet<TeamJoinRequest> TeamJoinRequests { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
 {

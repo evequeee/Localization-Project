@@ -146,6 +146,43 @@ export async function apiPut(endpoint: string, data?: any): Promise<any> {
   }
 }
 
+// PATCH запит з автоматичним додаванням токена
+export async function apiPatch(endpoint: string, data?: any): Promise<any> {
+  const token = getToken();
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      },
+      body: data ? JSON.stringify(data) : undefined
+    });
+
+    if (response.status === 401) {
+      clearAuth();
+      throw new Error('Токен протермінований');
+    }
+
+    if (!response.ok) {
+      try {
+        const errorData = await response.json();
+        if (errorData.message) throw new Error(errorData.message);
+        if (errorData.title) throw new Error(errorData.title);
+      } catch (parseError) {
+        if (!(parseError instanceof SyntaxError)) throw parseError;
+      }
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`PATCH ${endpoint} помилка:`, error);
+    throw error;
+  }
+}
+
 // DELETE запит з автоматичним додаванням токена
 export async function apiDelete(endpoint: string): Promise<any> {
   const token = getToken();
