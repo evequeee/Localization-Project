@@ -1,16 +1,23 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useLanguage, type Language } from '../context/LanguageContext';
 import { RoleBasedRender } from './ProtectedRoute';
 import { useState } from 'react';
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const toggleLanguage = () => {
+    const newLang: Language = language === 'uk' ? 'en' : 'uk';
+    setLanguage(newLang);
   };
 
   return (
@@ -19,18 +26,18 @@ export const Navbar = () => {
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-p4-yellow via-p4-accent to-p4-yellow opacity-80"></div>
 
       <div className="px-8 py-6 flex justify-between items-center">
-        {/* Logo Section - TV Screen Style */}
+        {/* Logo Section - MIDNIGHT LOCALIZE */}
         <Link 
           to="/" 
-          className="group flex items-center gap-3 hover:opacity-80 transition-opacity"
+          className="group flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
-          <div className="text-4xl font-black uppercase tracking-tighter transform -skew-x-6 
+          <div className="text-3xl font-black uppercase tracking-tighter transform -skew-x-6 
                           bg-p4-yellow text-p4-bg px-4 py-2 shadow-p4">
-            📺 TV
+            📺
           </div>
-          <div className="hidden sm:block text-xl font-black text-p4-white uppercase tracking-wider 
+          <div className="text-lg font-black text-p4-white uppercase tracking-widest 
                           transform -skew-x-2 group-hover:text-p4-yellow transition-colors duration-200">
-            LOCAL<span className="text-p4-yellow">IZE</span>
+            MIDNIGHT <span className="text-p4-yellow">LOCALIZE</span>
           </div>
         </Link>
 
@@ -44,7 +51,7 @@ export const Navbar = () => {
             className="p4-menu-item group relative"
           >
             <span className="relative">
-              Home
+              {t('nav.home')}
               <span className={`absolute bottom-0 left-0 h-1 bg-p4-yellow transition-all duration-200 
                               ${hoveredItem === 'home' ? 'w-full' : 'w-0'}`}></span>
             </span>
@@ -60,7 +67,7 @@ export const Navbar = () => {
                 className="p4-menu-item group relative"
               >
                 <span className="relative">
-                  Games
+                  {t('nav.games')}
                   <span className={`absolute bottom-0 left-0 h-1 bg-p4-yellow transition-all duration-200 
                                   ${hoveredItem === 'games' ? 'w-full' : 'w-0'}`}></span>
                 </span>
@@ -74,7 +81,7 @@ export const Navbar = () => {
                 className="p4-menu-item group relative"
               >
                 <span className="relative">
-                  Teams
+                  {t('nav.teams')}
                   <span className={`absolute bottom-0 left-0 h-1 bg-p4-yellow transition-all duration-200 
                                   ${hoveredItem === 'teams' ? 'w-full' : 'w-0'}`}></span>
                 </span>
@@ -89,7 +96,7 @@ export const Navbar = () => {
                   to="/add-game" 
                   className="p4-button text-xs hover:bg-p4-yellow hover:border-p4-yellow hover:text-p4-bg"
                 >
-                  ⚔️ New Game
+                  ⚔️ {t('games.add')}
                 </Link>
               </RoleBasedRender>
 
@@ -98,7 +105,7 @@ export const Navbar = () => {
                 to="/add-team" 
                 className="p4-button text-xs hover:bg-p4-yellow hover:border-p4-yellow hover:text-p4-bg"
               >
-                👥 Team
+                👥 {t('teams.create')}
               </Link>
 
               {/* User Info Section */}
@@ -115,7 +122,7 @@ export const Navbar = () => {
                 onClick={handleLogout}
                 className="p4-button text-xs hover:bg-p4-yellow hover:border-p4-yellow hover:text-p4-bg"
               >
-                ⚡ Sign Out
+                ⚡ {t('nav.logout')}
               </button>
             </>
           ) : (
@@ -125,7 +132,7 @@ export const Navbar = () => {
                 to="/login" 
                 className="p4-button text-xs hover:bg-p4-yellow hover:border-p4-yellow hover:text-p4-bg"
               >
-                🔐 Login
+                🔐 {t('nav.login')}
               </Link>
 
               {/* Register Button */}
@@ -133,10 +140,21 @@ export const Navbar = () => {
                 to="/register" 
                 className="p4-button-yellow text-xs"
               >
-                ✨ Join
+                ✨ {t('nav.register')}
               </Link>
             </>
           )}
+
+          {/* Language Switcher */}
+          <button
+            onClick={toggleLanguage}
+            className="ml-4 px-3 py-2 border-2 border-p4-yellow bg-p4-bg text-p4-yellow 
+                       font-black uppercase tracking-widest text-xs rounded hover:bg-p4-yellow 
+                       hover:text-p4-bg transition-all duration-150 transform -skew-x-2"
+            title={`Switch to ${language === 'uk' ? 'English' : 'Ukrainian'}`}
+          >
+            {language === 'uk' ? 'УКР' : 'ENG'}
+          </button>
         </div>
       </div>
 

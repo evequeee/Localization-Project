@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { LanguageProvider } from './context/LanguageContext';
 import { Navbar } from './components/Navbar';
 import { FloatingApiTesterButton } from './components/FloatingApiTesterButton';
 import { withProtection } from './components/ProtectedRoute';
@@ -27,7 +28,8 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="min-h-screen bg-p4black text-white selection:bg-p4yellow selection:text-p4black font-sans">
+        <LanguageProvider>
+          <div className="min-h-screen bg-p4black text-white selection:bg-p4yellow selection:text-p4black font-sans">
           <Navbar />
           <FloatingApiTesterButton />
 
@@ -49,6 +51,7 @@ function App() {
             </Routes>
           </main>
         </div>
+        </LanguageProvider>
       </AuthProvider>
     </Router>
   );
