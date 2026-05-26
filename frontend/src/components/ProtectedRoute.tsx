@@ -75,7 +75,7 @@ export const RoleBasedRender = ({
     const { hasPermission } = useAuth();
     return hasPermission(requiredRoles) ? <>{children}</> : fallback;
   } catch (err) {
-    console.error('Помилка при перевірці прав:', err);
+    console.error('Error checking permissions:', err);
     return fallback;
   }
 };

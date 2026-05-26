@@ -1,153 +1,175 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+/* Persona UI - App Styles */
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-}
-
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
+/* Main App Container */
+#root {
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  min-height: 100vh;
+  background-color: #0f0f12;
+  color: #ffffff;
 }
 
-#next-steps {
+/* Page Content Container */
+main {
+  flex: 1;
   display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
+  flex-direction: column;
+}
 
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
+/* Smooth transitions for all interactive elements */
+button, a, input, textarea, select {
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Focus states with Persona Red accent */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.3),
+              inset 0 0 0 2px #d32f2f;
+}
+
+/* Remove default input styling */
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Persona-specific form field styling */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  background-color: #1a1a1e;
+  color: #ffffff;
+  border: 4px solid #000000;
+  padding: 12px 16px;
+  font-weight: 500;
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+textarea::placeholder {
+  color: #757575;
+  font-weight: 400;
+}
+
+/* Disabled state */
+input:disabled,
+textarea:disabled,
+select:disabled,
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Links - Persona style */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:visited {
+  color: inherit;
+}
+
+/* Code blocks - maintain readability on dark bg */
+code {
+  background-color: #1a1a1e;
+  color: #ff1744;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+/* Selection color */
+::selection {
+  background-color: #d32f2f;
+  color: #ffffff;
+}
+
+/* Animation: Pulse Red (for CTAs) */
+@keyframes pulseRed {
+  0% {
+    box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7);
   }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
+  70% {
+    box-shadow: 0 0 0 15px rgba(211, 47, 47, 0);
   }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
+  100% {
+    box-shadow: 0 0 0 0 rgba(211, 47, 47, 0);
   }
 }
 
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
+/* Animation: Skew Entrance */
+@keyframes skewEntrance {
+  from {
+    transform: skewX(6deg) translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: skewX(0deg) translateX(0);
+    opacity: 1;
   }
 }
 
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
+/* Load animation for page content */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-  .logo {
-    height: 18px;
+/* Utility animations */
+.animate-in {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Page transition fade */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive typography adjustments */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
   }
 
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
+  h1 {
+    font-size: 2rem;
   }
 
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
+  h2 {
+    font-size: 1.5rem;
+  }
+}
 
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
+/* Print styles - hide interactive elements */
+@media print {
+  button,
+  nav,
+  .no-print {
+    display: none;
+  }
+}
       box-sizing: border-box;
     }
   }

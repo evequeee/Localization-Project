@@ -3,6 +3,8 @@
  * Додає токен до всіх запитів та обробляє 401 помилки
  */
 
+import { isTokenExpired, getTimeUntilExpiry } from './tokenLogger';
+
 const API_BASE_URL = 'http://localhost:5169';
 
 // Функція для отримання токена з localStorage
@@ -17,6 +19,7 @@ function getToken(): string | null {
 // Функція для очищення даних при 401
 function clearAuth(): void {
   try {
+    console.warn('🔴 Токен невалідний! Очищення даних та перенаправлення на /login...');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.location.href = '/login';
@@ -30,6 +33,18 @@ function clearAuth(): void {
 export async function apiGet(endpoint: string): Promise<any> {
   const token = getToken();
   
+  console.group(`📤 GET ${endpoint}`);
+  if (token) {
+    if (isTokenExpired(token)) {
+      console.warn('⏰ Токен ЕКСПАЙРИВ!');
+    } else {
+      const timeLeft = getTimeUntilExpiry(token);
+      console.log(`🔐 Токен дійсний (${timeLeft}с до експайру)`);
+    }
+  } else {
+    console.warn('🔓 Без токена (публічний запит)');
+  }
+  
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'GET',
@@ -40,17 +55,24 @@ export async function apiGet(endpoint: string): Promise<any> {
     });
 
     if (response.status === 401) {
+      console.error('❌ 401 Unauthorized - токен невалідний або експайрив');
+      console.groupEnd();
       clearAuth();
       throw new Error('Токен протермінований');
     }
 
     if (!response.ok) {
+      console.error(`❌ HTTP ${response.status}`);
+      console.groupEnd();
       throw new Error(`HTTP ${response.status}`);
     }
 
+    console.log('✅ Успішно');
+    console.groupEnd();
     return await response.json();
   } catch (error) {
-    console.error(`GET ${endpoint} помилка:`, error);
+    console.error(`❌ Помилка:`, error);
+    console.groupEnd();
     throw error;
   }
 }
@@ -58,6 +80,19 @@ export async function apiGet(endpoint: string): Promise<any> {
 // POST запит з автоматичним додаванням токена
 export async function apiPost(endpoint: string, data?: any): Promise<any> {
   const token = getToken();
+  
+  console.group(`📤 POST ${endpoint}`);
+  if (token) {
+    if (isTokenExpired(token)) {
+      console.warn('⏰ Токен ЕКСПАЙРИВ!');
+    } else {
+      const timeLeft = getTimeUntilExpiry(token);
+      console.log(`🔐 Токен дійсний (${timeLeft}с до експайру)`);
+    }
+  } else {
+    console.warn('🔓 Без токена (публічний запит)');
+  }
+  console.log('Дані:', data);
   
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -70,6 +105,8 @@ export async function apiPost(endpoint: string, data?: any): Promise<any> {
     });
 
     if (response.status === 401) {
+      console.error('❌ 401 Unauthorized - токен невалідний або експайрив');
+      console.groupEnd();
       clearAuth();
       throw new Error('Токен протермінований');
     }
@@ -86,32 +123,46 @@ export async function apiPost(endpoint: string, data?: any): Promise<any> {
               return `${field}: ${msgs.join(', ')}`;
             })
             .join('\n');
+          console.error(`❌ HTTP ${response.status}: Валідація`, errorMessages);
+          console.groupEnd();
           throw new Error(errorMessages);
         }
         
         // Обробка error message з відповіді
         if (errorData.message) {
+          console.error(`❌ HTTP ${response.status}:`, errorData.message);
+          console.groupEnd();
           throw new Error(errorData.message);
         }
         
         // Обробка title з ProblemDetails
         if (errorData.title) {
+          console.error(`❌ HTTP ${response.status}:`, errorData.title);
+          console.groupEnd();
           throw new Error(errorData.title);
         }
       } catch (parseError) {
         // Якщо помилка з парсингу JSON, використовуємо статус
         if (parseError instanceof SyntaxError) {
+          console.error(`❌ HTTP ${response.status}`);
+          console.groupEnd();
           throw new Error(`HTTP ${response.status}`);
         }
+        console.groupEnd();
         throw parseError;
       }
       
+      console.error(`❌ HTTP ${response.status}`);
+      console.groupEnd();
       throw new Error(`HTTP ${response.status}`);
     }
 
+    console.log('✅ Успішно');
+    console.groupEnd();
     return await response.json();
   } catch (error) {
-    console.error(`POST ${endpoint} помилка:`, error);
+    console.error(`❌ Помилка:`, error);
+    console.groupEnd();
     throw error;
   }
 }

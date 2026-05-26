@@ -21,8 +21,8 @@ export const JoinTeamButton = ({ teamId, teamName, onSuccess }: JoinTeamButtonPr
       setHasRequested(true);
       onSuccess?.();
     } catch (err: any) {
-      console.error('Помилка при подачі заявки:', err);
-      setError(err.message || 'Помилка при подачі заявки');
+      console.error('Error submitting join request:', err);
+      setError(err.message || 'Failed to submit join request');
     } finally {
       setIsLoading(false);
     }
@@ -32,9 +32,10 @@ export const JoinTeamButton = ({ teamId, teamName, onSuccess }: JoinTeamButtonPr
     return (
       <button
         disabled
-        className="w-full bg-gray-700 text-gray-300 border-2 border-gray-600 font-black uppercase tracking-widest text-sm py-3 cursor-not-allowed opacity-75"
+        className="w-full bg-p4-gray text-p4-gray border-4 border-p4-gray font-black 
+                 uppercase tracking-widest text-sm py-3 cursor-not-allowed opacity-60 p4-button"
       >
-        ✅ Заявка на розгляді
+        ✅ Request Pending Review
       </button>
     );
   }
@@ -42,20 +43,19 @@ export const JoinTeamButton = ({ teamId, teamName, onSuccess }: JoinTeamButtonPr
   return (
     <>
       {error && (
-        <div className="mb-4 bg-red-900 border-2 border-red-600 text-white p-3 font-bold uppercase tracking-widest text-xs">
+        <div className="mb-4 bg-red-900 border-4 border-red-600 text-white p-4 
+                      font-black uppercase tracking-widest text-xs transform -skew-x-1">
           ⚠️ {error}
         </div>
       )}
       <button
         onClick={handleJoinClick}
         disabled={isLoading}
-        className={`w-full border-2 font-black uppercase tracking-widest text-sm py-3 transition-all duration-200 ${
-          isLoading
-            ? 'bg-gray-700 text-gray-300 border-gray-600 cursor-not-allowed opacity-50'
-            : 'bg-p4yellow text-black border-black hover:bg-white hover:scale-[1.02] active:scale-95'
-        }`}
+        className={`w-full font-black uppercase tracking-widest text-sm py-3 transition-all 
+                   duration-200 p4-button-yellow hover:shadow-p4 
+                   ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        {isLoading ? '⏳ Подання заявки...' : `+ Вступити до "${teamName}"`}
+        {isLoading ? '⏳ Submitting...' : `➕ Join "${teamName}"`}
       </button>
     </>
   );

@@ -1,5 +1,6 @@
 import { createContext, useState, useCallback, type ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import { logTokenDetails, logSystemTime, isTokenExpired } from '../services/tokenLogger';
 
 export type UserRole = 'Admin' | 'TeamAdmin' | 'User';
 
@@ -45,7 +46,7 @@ function extractRoleFromToken(token: string): UserRole | null {
     
     return null;
   } catch (error) {
-    console.error('Помилка при декодуванні токена:', error);
+    console.error('Error decoding token:', error);
     return null;
   }
 }
@@ -62,15 +63,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const storedUser = localStorage.getItem('user');
       return storedUser ? JSON.parse(storedUser) : null;
     } catch {
-      console.error('Помилка при завантаженні користувача з localStorage');
+      console.error('Error loading user from localStorage');
       return null;
     }
   });
 
   const [token, setToken] = useState<string | null>(() => {
     try {
-      return localStorage.getItem('token');
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) {
+        console.group('🔄 Token завантажено з localStorage');
+        if (isTokenExpired(storedToken)) {
+          console.warn('⏰ ВНИМАНИЕ: Токен ЕКСПАЙРИВ! Необхідно перезаваж...');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          console.groupEnd();
+          return null;
+        }
+        logTokenDetails(storedToken);
+        logSystemTime();
+        console.groupEnd();
+      }
+      return storedToken;
     } catch {
+      console.error('❌ Error loading token from localStorage');
       return null;
     }
   });
@@ -82,6 +98,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
     try {
+      console.group('🔐 LOGIN');
+      console.log(`📧 Email: ${email}`);
+      
       // POST запит до /api/auth/login
       const response = await fetch('http://localhost:5169/api/auth/login', {
         method: 'POST',
@@ -90,17 +109,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
 
       if (!response.ok) {
-        throw new Error('Помилка входу');
+        console.error('❌ Login failed:', response.status);
+        console.groupEnd();
+        throw new Error('Login failed');
       }
 
       const data = await response.json();
       
       const newToken = data.token;
       
+      console.log('✅ Token отриманий від сервера');
+      logTokenDetails(newToken);
+      
       // Декодуємо токен, щоб витягти роль
       const role = extractRoleFromToken(newToken);
       
       if (!role) {
+        console.error('❌ Cannot extract role from token');
+        console.groupEnd();
         throw new Error('Неможливо витягти роль з токена');
       }
 
@@ -124,8 +150,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(newUser));
+      
+      console.log('✅ User logged in:', newUser);
+      logSystemTime();
+      console.groupEnd();
     } catch (error) {
-      console.error('Помилка входу:', error);
+      console.error('❌ Login error:', error);
+      console.groupEnd();
       throw error;
     } finally {
       setLoading(false);
@@ -135,6 +166,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const register = useCallback(async (email: string, password: string, teamId?: number) => {
     setLoading(true);
     try {
+      console.group('📝 REGISTER');
+      console.log(`📧 Email: ${email}`);
+      
       // POST запит до /api/auth/register
       const response = await fetch('http://localhost:5169/api/auth/register', {
         method: 'POST',
@@ -143,17 +177,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
 
       if (!response.ok) {
-        throw new Error('Помилка реєстрації');
+        console.error('❌ Register failed:', response.status);
+        console.groupEnd();
+        throw new Error('Registration failed');
       }
 
       const data = await response.json();
 
       const newToken = data.token;
       
+      console.log('✅ Token отриманий від сервера');
+      logTokenDetails(newToken);
+      
       // Декодуємо токен, щоб витягти роль
       const role = extractRoleFromToken(newToken);
       
       if (!role) {
+        console.error('❌ Cannot extract role from token');
+        console.groupEnd();
         throw new Error('Неможливо витягти роль з токена');
       }
 
@@ -177,8 +218,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(newUser));
+      
+      console.log('✅ User registered:', newUser);
+      logSystemTime();
+      console.groupEnd();
     } catch (error) {
-      console.error('Помилка реєстрації:', error);
+      console.error('❌ Register error:', error);
+      console.groupEnd();
       throw error;
     } finally {
       setLoading(false);

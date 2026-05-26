@@ -14,27 +14,79 @@ export const GamesList = () => {
   }, []);
 
   const handleGameDelete = (gameId: number) => {
-    // Видаляємо гру з локального стану
     setGames(games.filter(game => game.id !== gameId));
   };
 
-  if (loading) return <div className="p-8 text-p4yellow text-2xl font-bold animate-pulse">Завантаження бази... 📺</div>;
+  if (loading) {
+    return (
+      <div className="p-12 flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-6xl font-black text-p4-yellow mb-4 animate-pulse">
+            📺
+          </div>
+          <div className="text-2xl font-black text-p4-white uppercase tracking-wider">
+            Loading Game Catalog
+          </div>
+          <div className="text-sm text-p4-gray mt-2">
+            from the Midnight Channel...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-8">
-      <h1 className="text-4xl font-black text-p4yellow mb-8 uppercase tracking-wider drop-shadow-md">Каталог ігор</h1>
-      
-      {games.length === 0 ? (
-        <div className="text-center text-gray-400 text-lg">
-          Ігр немає. Першу гру повинен додати адміністратор.
+    <div className="min-h-screen bg-p4-bg p4-scanline">
+      {/* Page Header */}
+      <div className="px-8 py-12 max-w-7xl mx-auto">
+        <div className="flex items-end gap-4 mb-8">
+          <h1 className="text-6xl md:text-7xl font-black text-p4-white uppercase 
+                        tracking-tighter p4-text-shadow">
+            Game Catalog
+          </h1>
+          <div className="bg-p4-yellow text-p4-bg px-3 py-2 font-black 
+                        transform -skew-x-6 shadow-p4">
+            #{games.length}
+          </div>
         </div>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr">
-          {games.map(game => (
-            <GameCard key={game.id} game={game} onDelete={handleGameDelete} />
-          ))}
-        </div>
-      )}
+        
+        <p className="text-lg text-p4-gray font-light mb-8">
+          {games.length === 0 
+            ? '📭 No games yet. Admin must add the first game.' 
+            : `📺 ${games.length} ${games.length === 1 ? 'game' : 'games'} ready for translation`}
+        </p>
+
+        {/* Games Grid */}
+        {games.length === 0 ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="text-8xl font-black text-p4-gray opacity-20 mb-4">
+                🎮
+              </div>
+              <p className="text-2xl font-black text-p4-gray uppercase tracking-wider">
+                Catalog Empty
+              </p>
+              <p className="text-sm text-p4-gray mt-2 max-w-md">
+                Come back later when the admin adds the first game!
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr">
+            {games.map((game, index) => (
+              <div key={game.id} className="animate-in" style={{ 
+                animationDelay: `${index * 50}ms` 
+              }}>
+                <GameCard game={game} onDelete={handleGameDelete} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Background decorations */}
+      <div className="fixed bottom-0 right-0 w-96 h-96 bg-p4-yellow opacity-5 
+                     transform skew-x-12 -z-10 pointer-events-none"></div>
     </div>
   );
 };

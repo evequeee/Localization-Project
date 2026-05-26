@@ -26,19 +26,19 @@ export const Register = () => {
     const errors: Record<string, string> = {};
 
     if (!formData.email) {
-      errors.email = 'Email потрібен';
+      errors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Невірний формат email';
+      errors.email = 'Invalid email format';
     }
 
     if (!formData.password) {
-      errors.password = 'Пароль потрібен';
+      errors.password = 'Password is required';
     } else if (formData.password.length < 6) {
-      errors.password = 'Пароль має бути щонайменше 6 символів';
+      errors.password = 'Password must be at least 6 characters';
     }
 
     if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = 'Паролі не збігаються';
+      errors.confirmPassword = 'Passwords do not match';
     }
 
     setValidationErrors(errors);
@@ -56,131 +56,160 @@ export const Register = () => {
       await register(formData.email, formData.password);
       navigate('/games');
     } catch (err: any) {
-      setError(err.message || 'Помилка реєстрації. Спробуйте пізніше.');
+      setError(err.message || 'Registration failed. Try again later.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-p4black flex items-center justify-center p-4">
+    <div className="min-h-screen bg-p4-bg flex items-center justify-center p-4 relative p4-scanline">
       <div className="w-full max-w-md">
 
-        {/* Заголовок */}
-        <div className="mb-12 text-center">
-          <h1 className="text-5xl font-black text-p4yellow uppercase tracking-tighter drop-shadow-md">
-            Реєстрація
+        {/* Title Section - Persona 4 Golden TV Style */}
+        <div className="mb-16 text-center">
+          <div className="flex justify-center mb-6">
+            <div className="bg-p4-yellow text-p4-bg px-4 py-3 font-black 
+                          transform -skew-x-6 text-5xl shadow-p4-lg">
+              ✨
+            </div>
+          </div>
+          <h1 className="text-6xl font-black text-p4-white uppercase 
+                        tracking-tighter p4-text-shadow mb-2">
+            Join Us
           </h1>
-          <p className="text-p4yellow font-bold tracking-widest text-sm mt-2">
-            ПРИЄДНАЙТЕСЬ ДО MIDNIGHT CHANNEL
+          <p className="text-p4-gray font-black tracking-widest text-sm">
+            ENTER THE MIDNIGHT CHANNEL
           </p>
-          <div className="h-1 bg-p4yellow w-32 mx-auto mt-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"></div>
+          <div className="h-2 bg-gradient-to-r from-p4-yellow via-p4-accent to-transparent 
+                        w-48 mx-auto mt-6"></div>
         </div>
 
-        {/* Форма реєстрації */}
-        <form onSubmit={handleSubmit} className="bg-p4gray border-4 border-p4yellow p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative">
+        {/* Register Form */}
+        <form onSubmit={handleSubmit} className="relative">
+          {/* Shadow layer */}
+          <div className="absolute inset-0 bg-black transform -skew-x-2 translate-x-3 translate-y-3 -z-10"></div>
 
-          <div className="absolute -top-2 -right-2 w-8 h-8 bg-p4yellow transform rotate-45"></div>
+          {/* Main form box */}
+          <div className="bg-p4-dark border-4 border-p4-white transform -skew-x-1 
+                        p-8 shadow-p4-xl relative z-10">
 
-          {/* Повідомлення про помилку */}
-          {error && (
-            <div className="mb-6 bg-red-900 border-2 border-red-600 text-white p-3 font-bold uppercase tracking-widest text-sm">
-              ⚠️ {error}
+            {/* Decorative corner */}
+            <div className="absolute -top-3 -right-3 w-8 h-8 bg-p4-yellow 
+                          border-2 border-p4-yellow"></div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 bg-red-900 border-4 border-red-600 text-white p-4 
+                            font-black uppercase tracking-widest text-sm transform -skew-x-1">
+                ⚠️ {error}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-5">
+
+              {/* Email Field */}
+              <div className="flex flex-col">
+                <label className="text-p4-yellow font-black uppercase tracking-widest text-sm mb-3">
+                  📧 Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  disabled={loading}
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="you@example.com"
+                  className={`p4-input ${validationErrors.email ? 'border-red-600 focus:shadow-none' : ''}`}
+                />
+                {validationErrors.email && (
+                  <span className="text-red-400 text-xs font-black mt-2 uppercase">
+                    ⚠️ {validationErrors.email}
+                  </span>
+                )}
+              </div>
+
+              {/* Password Field */}
+              <div className="flex flex-col">
+                <label className="text-p4-yellow font-black uppercase tracking-widest text-sm mb-3">
+                  🔐 Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  required
+                  disabled={loading}
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="••••••••"
+                  className={`p4-input ${validationErrors.password ? 'border-red-600 focus:shadow-none' : ''}`}
+                />
+                {validationErrors.password && (
+                  <span className="text-red-400 text-xs font-black mt-2 uppercase">
+                    ⚠️ {validationErrors.password}
+                  </span>
+                )}
+              </div>
+
+              {/* Confirm Password Field */}
+              <div className="flex flex-col">
+                <label className="text-p4-yellow font-black uppercase tracking-widest text-sm mb-3">
+                  🔄 Confirm Password
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  required
+                  disabled={loading}
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  placeholder="••••••••"
+                  className={`p4-input ${validationErrors.confirmPassword ? 'border-red-600 focus:shadow-none' : ''}`}
+                />
+                {validationErrors.confirmPassword && (
+                  <span className="text-red-400 text-xs font-black mt-2 uppercase">
+                    ⚠️ {validationErrors.confirmPassword}
+                  </span>
+                )}
+              </div>
+
+              {/* Register Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="p4-button-yellow text-lg mt-6 hover:shadow-p4-xl
+                          disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? '⏳ Creating Account...' : '🚀 Create Account'}
+              </button>
             </div>
-          )}
 
-          <div className="flex flex-col gap-4">
-
-            {/* Email */}
-            <div className="flex flex-col">
-              <label className="text-p4yellow font-bold uppercase tracking-widest text-xs mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="you@example.com"
-                className={`bg-p4black text-white border-2 p-2 font-bold outline-none transition-colors duration-200 uppercase tracking-wider placeholder-gray-600 ${
-                  validationErrors.email ? 'border-red-600 focus:border-red-600' : 'border-gray-600 focus:border-p4yellow focus:bg-p4yellow focus:text-black'
-                }`}
-              />
-              {validationErrors.email && (
-                <span className="text-red-400 text-xs font-bold mt-1">{validationErrors.email}</span>
-              )}
+            {/* Login Link */}
+            <div className="mt-8 pt-6 border-t-2 border-p4-gray text-center">
+              <p className="text-p4-gray font-black uppercase tracking-widest text-xs mb-4">
+                Already Have an Account?
+              </p>
+              <Link
+                to="/login"
+                className="inline-block p4-button text-sm hover:bg-p4-yellow 
+                          hover:border-p4-yellow hover:text-p4-bg"
+              >
+                🔐 Sign In
+              </Link>
             </div>
 
-            {/* Пароль */}
-            <div className="flex flex-col">
-              <label className="text-p4yellow font-bold uppercase tracking-widest text-xs mb-1">
-                Пароль
-              </label>
-              <input
-                type="password"
-                name="password"
-                required
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder="••••••••"
-                className={`bg-p4black text-white border-2 p-2 font-bold outline-none transition-colors duration-200 tracking-wider placeholder-gray-600 ${
-                  validationErrors.password ? 'border-red-600 focus:border-red-600' : 'border-gray-600 focus:border-p4yellow focus:bg-p4yellow focus:text-black'
-                }`}
-              />
-              {validationErrors.password && (
-                <span className="text-red-400 text-xs font-bold mt-1">{validationErrors.password}</span>
-              )}
-            </div>
-
-            {/* Підтвердження пароля */}
-            <div className="flex flex-col">
-              <label className="text-p4yellow font-bold uppercase tracking-widest text-xs mb-1">
-                Підтвердити пароль
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                required
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                placeholder="••••••••"
-                className={`bg-p4black text-white border-2 p-2 font-bold outline-none transition-colors duration-200 tracking-wider placeholder-gray-600 ${
-                  validationErrors.confirmPassword ? 'border-red-600 focus:border-red-600' : 'border-gray-600 focus:border-p4yellow focus:bg-p4yellow focus:text-black'
-                }`}
-              />
-              {validationErrors.confirmPassword && (
-                <span className="text-red-400 text-xs font-bold mt-1">{validationErrors.confirmPassword}</span>
-              )}
-            </div>
-
-            {/* Кнопка реєстрації */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-4 bg-p4yellow text-p4black border-4 border-black font-black uppercase tracking-widest text-lg py-3 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1"
-            >
-              {loading ? 'Реєстрація...' : 'Зареєструватися'}
-            </button>
           </div>
-
-          {/* Посилання на вхід */}
-          <div className="mt-6 pt-4 border-t-2 border-gray-600 text-center">
-            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-3">
-              Вже маєте облік?
-            </p>
-            <Link
-              to="/login"
-              className="inline-block bg-p4black text-p4yellow border-2 border-p4yellow font-black uppercase tracking-widest px-6 py-2 hover:bg-p4yellow hover:text-p4black transition-colors duration-200"
-            >
-              Вхід
-            </Link>
-          </div>
-
         </form>
 
-        <div className="mt-8 text-center text-gray-600 font-bold uppercase tracking-tighter text-xs">
-          🎮 LocalizeDB v1.0
+        {/* Footer */}
+        <div className="mt-12 text-center text-p4-gray font-black uppercase 
+                      tracking-tighter text-xs">
+          v1.0 · MIDNIGHT CHANNEL
         </div>
       </div>
+
+      {/* Background decorations */}
+      <div className="fixed top-0 right-0 w-96 h-96 bg-p4-yellow opacity-5 
+                     transform -skew-x-12 -z-10 pointer-events-none"></div>
     </div>
   );
 };

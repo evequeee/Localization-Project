@@ -2,7 +2,140 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  box-sizing: border-box;
+}
+
 body {
-  background-color: #121212;
+  background-color: #0a0a0c;
   margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #ffffff;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+/* TV Scanlines Effect - Persona 4 Golden */
+@keyframes scanlines {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+  animation: scanlines 0.15s linear infinite;
+}
+
+/* Persona 4 Golden - Text inversions */
+@layer components {
+  .p4-inverted {
+    @apply bg-p4-white text-p4-bg px-2 py-1 font-black;
+  }
+
+  .p4-text-shadow {
+    text-shadow: 3px 3px 0px rgba(255, 215, 0, 0.3);
+  }
+
+  .p4-border-thick {
+    @apply border-4 border-black;
+  }
+
+  .p4-skew {
+    @apply transform -skew-x-6;
+  }
+
+  .p4-menu-item {
+    @apply font-black uppercase tracking-wider text-white 
+           transition-all duration-150 ease-out cursor-pointer
+           hover:text-p4-yellow hover:translate-x-3;
+  }
+
+  .p4-button {
+    @apply font-black uppercase tracking-widest px-4 py-3 
+           border-4 border-black bg-p4-bg text-p4-white
+           transition-all duration-150 ease-out 
+           hover:shadow-p4 hover:-translate-y-1
+           active:translate-y-1 active:shadow-none;
+  }
+
+  .p4-button-yellow {
+    @apply font-black uppercase tracking-widest px-4 py-3 
+           border-4 border-p4-yellow bg-p4-yellow text-p4-bg
+           transition-all duration-150 ease-out 
+           hover:shadow-p4 hover:-translate-y-1
+           active:translate-y-1 active:shadow-none;
+  }
+
+  .p4-card {
+    @apply bg-p4-dark border-4 border-p4-white
+           transform -skew-x-1 transition-all duration-200
+           hover:shadow-p4-lg hover:-translate-y-2;
+  }
+
+  .p4-input {
+    @apply w-full bg-p4-bg border-4 border-black 
+           text-p4-white placeholder-gray-500
+           focus:outline-none focus:shadow-p4
+           transition-all duration-150 ease-out
+           p-3 font-semibold;
+  }
+
+  .p4-scanline {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .p4-scanline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.1) 0px,
+      rgba(0, 0, 0, 0.1) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+    pointer-events: none;
+    z-index: 10;
+  }
+}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #141416;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ffd700;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ffeb3b;
 }

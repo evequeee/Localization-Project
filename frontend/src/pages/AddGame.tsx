@@ -3,21 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { CustomSelect } from '../components/CustomSelect';
 import { apiPost } from '../services/api';
 
-// Опції для мов
+// Options for languages
 const languageOptions = [
   { value: 'English', label: 'English' },
   { value: 'Japanese', label: 'Japanese' },
   { value: 'Korean', label: 'Korean' },
-  { value: 'Ukrainian', label: 'Ukrainian (SBT)' },
-  { value: 'Other', label: 'Інша' }
+  { value: 'Ukrainian', label: 'Ukrainian' },
+  { value: 'Other', label: 'Other' }
 ];
 
-// Опції для статусів
+// Options for status
 const statusOptions = [
-  { value: 'Not Started', label: 'Не розпочато' },
-  { value: 'In Progress', label: 'В процесі' },
-  { value: 'Testing', label: 'Тестування' },
-  { value: 'Completed', label: 'Завершено' }
+  { value: 'Not Started', label: 'Not Started' },
+  { value: 'In Progress', label: 'In Progress' },
+  { value: 'Testing', label: 'Testing' },
+  { value: 'Completed', label: 'Completed' }
 ];
 
 export const AddGame = () => {
@@ -50,15 +50,15 @@ export const AddGame = () => {
     setSuccess('');
     setLoading(true);
 
-    // Базова валідація
+    // Basic validation
     if (!formData.title.trim()) {
-      setError('Назва гри є обов\'язковою!');
+      setError('Game title is required!');
       setLoading(false);
       return;
     }
 
     if (!formData.description.trim()) {
-      setError('Опис гри є обов\'язковим!');
+      setError('Game description is required!');
       setLoading(false);
       return;
     }
@@ -66,9 +66,9 @@ export const AddGame = () => {
     try {
       await apiPost('/api/games', formData);
       
-      setSuccess(`✅ Гру "${formData.title}" успішно додано до Midnight Channel! 📺`);
+      setSuccess(`✅ Game "${formData.title}" added successfully! 🎮`);
       
-      // Очистка форми
+      // Clear form
       setFormData({
         title: '',
         originalLanguage: 'English',
@@ -76,103 +76,137 @@ export const AddGame = () => {
         description: ''
       });
       
-      // Редірект через 1.5 секунди, щоб користувач бачив success повідомлення
+      // Redirect after 1.5 seconds
       setTimeout(() => {
         navigate('/games');
       }, 1500);
     } catch (err: any) {
-      console.error("Помилка при додаванні гри:", err);
-      setError(err.message || 'Помилка при додаванні гри. Спробуйте ще раз.');
+      console.error("Error adding game:", err);
+      setError(err.message || 'Failed to add game. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
-      <h1 className="text-5xl font-black text-p4yellow mb-8 uppercase tracking-wider drop-shadow-md">
-        Додати нову гру
-      </h1>
-
-      <form onSubmit={handleSubmit} className="bg-p4gray border-l-8 border-r-8 border-p4yellow p-8 shadow-2xl relative">
-        <div className="absolute -top-3 -left-3 w-6 h-6 bg-p4yellow transform rotate-45"></div>
-
-        {/* Повідомлення про помилку */}
-        {error && (
-          <div className="mb-6 bg-red-900 border-2 border-red-600 text-white p-4 font-bold uppercase tracking-widest text-sm">
-            ⚠️ {error}
+    <div className="min-h-screen bg-p4-bg p-8 p4-scanline">
+      <div className="max-w-3xl mx-auto">
+        {/* Page Title */}
+        <div className="mb-12">
+          <h1 className="text-6xl md:text-7xl font-black text-p4-white uppercase 
+                        tracking-tighter p4-text-shadow mb-2">
+            Add New
+          </h1>
+          <div className="flex items-center gap-3">
+            <div className="bg-p4-yellow text-p4-bg px-4 py-2 font-black 
+                          transform -skew-x-6 shadow-p4">
+              GAME
+            </div>
+            <h2 className="text-4xl font-black text-p4-gray uppercase">to Channel</h2>
           </div>
-        )}
-
-        {/* Повідомлення про успіх */}
-        {success && (
-          <div className="mb-6 bg-green-900 border-2 border-green-600 text-white p-4 font-bold uppercase tracking-widest text-sm">
-            {success}
-          </div>
-        )}
-
-        <div className="flex flex-col gap-6">
-          
-          {/* Назва гри */}
-          <div className="flex flex-col">
-            <label className="text-p4yellow font-bold uppercase tracking-widest text-sm mb-2">Назва гри</label>
-            <input 
-              type="text" 
-              name="title"
-              required
-              disabled={loading}
-              value={formData.title}
-              onChange={handleInputChange}
-              placeholder="Наприклад: Persona 3 Reload"
-              className="bg-p4black text-white border-2 border-gray-600 p-3 font-bold outline-none transition-colors duration-200 focus:border-p4yellow focus:bg-p4yellow focus:text-black placeholder-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-30">
-            {/* Оригінальна мова */}
-            <CustomSelect 
-              label="Оригінальна мова"
-              name="originalLanguage"
-              value={formData.originalLanguage}
-              options={languageOptions}
-              onChange={handleSelectChange}
-            />
-
-            {/* Статус перекладу */}
-            <CustomSelect 
-              label="Статус перекладу"
-              name="translationStatus"
-              value={formData.translationStatus}
-              options={statusOptions}
-              onChange={handleSelectChange}
-            />
-          </div>
-
-          {/* Опис */}
-          <div className="flex flex-col relative z-10">
-            <label className="text-p4yellow font-bold uppercase tracking-widest text-sm mb-2">Короткий опис</label>
-            <textarea 
-              name="description"
-              required
-              disabled={loading}
-              value={formData.description}
-              onChange={handleInputChange}
-              rows={4}
-              placeholder="Додайте опис гри..."
-              className="bg-p4black text-white border-2 border-gray-600 p-3 font-bold outline-none transition-colors duration-200 focus:border-p4yellow focus:bg-p4yellow focus:text-black placeholder-gray-500 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </div>
-
-          {/* Кнопка */}
-          <button 
-            type="submit"
-            disabled={loading}
-            className="mt-4 bg-p4yellow text-black border-4 border-black font-black uppercase tracking-widest text-xl py-4 hover:bg-white hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 relative z-10"
-          >
-            {loading ? 'Створення гри...' : 'Створити запис'}
-          </button>
         </div>
-      </form>
+
+        {/* Form Container */}
+        <form onSubmit={handleSubmit} className="relative">
+          {/* Shadow background */}
+          <div className="absolute inset-0 bg-black transform -skew-x-2 translate-x-2 translate-y-2 -z-10"></div>
+
+          {/* Main form box */}
+          <div className="bg-p4-dark border-4 border-p4-white transform -skew-x-1 
+                        p-8 shadow-p4-xl relative z-10">
+            
+            {/* Decorative corner */}
+            <div className="absolute -top-3 -right-3 w-8 h-8 bg-p4-yellow 
+                          border-2 border-p4-yellow"></div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 bg-red-900 border-4 border-red-600 text-white p-4 
+                            font-black uppercase tracking-widest text-sm transform -skew-x-1">
+                ⚠️ {error}
+              </div>
+            )}
+
+            {/* Success Message */}
+            {success && (
+              <div className="mb-6 bg-green-900 border-4 border-green-600 text-white p-4 
+                            font-black uppercase tracking-widest text-sm transform -skew-x-1">
+                {success}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-8">
+              
+              {/* Title Field */}
+              <div className="flex flex-col">
+                <label className="text-p4-yellow font-black uppercase tracking-widest 
+                               text-sm mb-3">⚡ Title</label>
+                <input 
+                  type="text" 
+                  name="title"
+                  required
+                  disabled={loading}
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  placeholder="e.g. Persona 4 Golden"
+                  className="p4-input"
+                />
+              </div>
+
+              {/* Language & Status Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-30">
+                {/* Original Language */}
+                <CustomSelect 
+                  label="🌐 Original Language"
+                  name="originalLanguage"
+                  value={formData.originalLanguage}
+                  options={languageOptions}
+                  onChange={handleSelectChange}
+                />
+
+                {/* Translation Status */}
+                <CustomSelect 
+                  label="📊 Translation Status"
+                  name="translationStatus"
+                  value={formData.translationStatus}
+                  options={statusOptions}
+                  onChange={handleSelectChange}
+                />
+              </div>
+
+              {/* Description Field */}
+              <div className="flex flex-col relative z-10">
+                <label className="text-p4-yellow font-black uppercase tracking-widest 
+                               text-sm mb-3">📝 Description</label>
+                <textarea 
+                  name="description"
+                  required
+                  disabled={loading}
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows={5}
+                  placeholder="Tell us about this game. Genre, franchise, what makes it special..."
+                  className="p4-input resize-none"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button 
+                type="submit"
+                disabled={loading}
+                className="p4-button-yellow text-lg hover:shadow-p4-xl
+                          disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? '⏳ Creating...' : '✨ Create Game'}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      {/* Background decoration */}
+      <div className="fixed top-20 left-0 w-96 h-96 bg-p4-yellow opacity-5 
+                     transform -skew-x-12 -z-10 pointer-events-none"></div>
     </div>
   );
 };

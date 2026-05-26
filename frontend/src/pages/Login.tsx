@@ -26,102 +26,128 @@ export const Login = () => {
       await login(formData.email, formData.password);
       navigate('/games');
     } catch (err: any) {
-      setError(err.message || 'Помилка входу. Перевірте дані.');
+      setError(err.message || 'Login failed. Check your credentials.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-p4black flex items-center justify-center p-4">
+    <div className="min-h-screen bg-p4-bg flex items-center justify-center p-4 relative p4-scanline">
       <div className="w-full max-w-md">
         
-        {/* Заголовок з P4G стилем */}
-        <div className="mb-12 text-center">
-          <h1 className="text-5xl font-black text-p4yellow uppercase tracking-tighter drop-shadow-md">
-            Midnight
+        {/* Title Section - Persona 4 Golden TV Style */}
+        <div className="mb-16 text-center">
+          <div className="flex justify-center mb-6">
+            <div className="bg-p4-yellow text-p4-bg px-4 py-3 font-black 
+                          transform -skew-x-6 text-5xl shadow-p4-lg">
+              📺
+            </div>
+          </div>
+          <h1 className="text-6xl font-black text-p4-white uppercase 
+                        tracking-tighter p4-text-shadow mb-2">
+            MIDNIGHT
           </h1>
-          <p className="text-p4yellow font-bold tracking-widest text-sm mt-2">
-            TV ↔ TERMINAL
+          <p className="text-p4-gray font-black tracking-widest text-sm">
+            ENTER THE CHANNEL
           </p>
-          <div className="h-1 bg-p4yellow w-32 mx-auto mt-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"></div>
+          <div className="h-2 bg-gradient-to-r from-p4-yellow via-p4-accent to-transparent 
+                        w-48 mx-auto mt-6"></div>
         </div>
 
-        {/* Форма входу */}
-        <form onSubmit={handleSubmit} className="bg-p4gray border-4 border-p4yellow p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative">
-          
-          {/* Декоративний елемент */}
-          <div className="absolute -top-2 -right-2 w-8 h-8 bg-p4yellow transform rotate-45"></div>
+        {/* Login Form */}
+        <form onSubmit={handleSubmit} className="relative">
+          {/* Shadow layer */}
+          <div className="absolute inset-0 bg-black transform -skew-x-2 translate-x-3 translate-y-3 -z-10"></div>
 
-          {/* Повідомлення про помилку */}
-          {error && (
-            <div className="mb-6 bg-red-900 border-2 border-red-600 text-white p-3 font-bold uppercase tracking-widest text-sm">
-              ⚠️ {error}
-            </div>
-          )}
-
-          <div className="flex flex-col gap-6">
+          {/* Main form box */}
+          <div className="bg-p4-dark border-4 border-p4-white transform -skew-x-1 
+                        p-8 shadow-p4-xl relative z-10">
             
-            {/* Email */}
-            <div className="flex flex-col">
-              <label className="text-p4yellow font-bold uppercase tracking-widest text-xs mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="you@example.com"
-                className="bg-p4black text-white border-2 border-gray-600 p-3 font-bold outline-none transition-colors duration-200 focus:border-p4yellow focus:bg-p4yellow focus:text-black placeholder-gray-600 uppercase tracking-wider"
-              />
+            {/* Decorative corner */}
+            <div className="absolute -top-3 -left-3 w-8 h-8 bg-p4-yellow 
+                          border-2 border-p4-yellow"></div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 bg-red-900 border-4 border-red-600 text-white p-4 
+                            font-black uppercase tracking-widest text-sm transform -skew-x-1">
+                ⚠️ {error}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-6">
+              
+              {/* Email Field */}
+              <div className="flex flex-col">
+                <label className="text-p4-yellow font-black uppercase tracking-widest text-sm mb-3">
+                  📧 Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  disabled={loading}
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="you@example.com"
+                  className="p4-input"
+                />
+              </div>
+
+              {/* Password Field */}
+              <div className="flex flex-col">
+                <label className="text-p4-yellow font-black uppercase tracking-widest text-sm mb-3">
+                  🔐 Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  required
+                  disabled={loading}
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="••••••••"
+                  className="p4-input"
+                />
+              </div>
+
+              {/* Login Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="p4-button-yellow text-lg mt-4 hover:shadow-p4-xl
+                          disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? '⏳ Logging in...' : '🚀 Enter'}
+              </button>
             </div>
 
-            {/* Пароль */}
-            <div className="flex flex-col">
-              <label className="text-p4yellow font-bold uppercase tracking-widest text-xs mb-2">
-                Пароль
-              </label>
-              <input
-                type="password"
-                name="password"
-                required
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder="••••••••"
-                className="bg-p4black text-white border-2 border-gray-600 p-3 font-bold outline-none transition-colors duration-200 focus:border-p4yellow focus:bg-p4yellow focus:text-black placeholder-gray-600 tracking-wider"
-              />
+            {/* Register Link */}
+            <div className="mt-8 pt-6 border-t-2 border-p4-gray text-center">
+              <p className="text-p4-gray font-black uppercase tracking-widest text-xs mb-4">
+                No Account Yet?
+              </p>
+              <Link
+                to="/register"
+                className="inline-block p4-button text-sm hover:bg-p4-yellow 
+                          hover:border-p4-yellow hover:text-p4-bg"
+              >
+                ✨ Join
+              </Link>
             </div>
 
-            {/* Кнопка входу */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-6 bg-p4yellow text-p4black border-4 border-black font-black uppercase tracking-widest text-lg py-3 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1"
-            >
-              {loading ? 'Вхід...' : 'Увійти'}
-            </button>
           </div>
-
-          {/* Посилання на реєстрацію */}
-          <div className="mt-8 pt-6 border-t-2 border-gray-600 text-center">
-            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-3">
-              Немаєте облікового запису?
-            </p>
-            <Link
-              to="/register"
-              className="inline-block bg-p4black text-p4yellow border-2 border-p4yellow font-black uppercase tracking-widest px-6 py-2 hover:bg-p4yellow hover:text-p4black transition-colors duration-200"
-            >
-              Реєстрація
-            </Link>
-          </div>
-
         </form>
 
-        {/* Декоративний текст знизу */}
-        <div className="mt-8 text-center text-gray-600 font-bold uppercase tracking-tighter text-xs">
-          🎮 LocalizeDB v1.0
+        {/* Footer */}
+        <div className="mt-12 text-center text-p4-gray font-black uppercase 
+                      tracking-tighter text-xs">
+          v1.0 · MIDNIGHT CHANNEL
         </div>
       </div>
+
+      {/* Background decorations */}
+      <div className="fixed bottom-0 left-0 w-96 h-96 bg-p4-yellow opacity-5 
+                     transform skew-x-12 -z-10 pointer-events-none"></div>
     </div>
   );
 };

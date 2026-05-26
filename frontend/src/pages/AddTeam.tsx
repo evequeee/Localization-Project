@@ -7,6 +7,7 @@ export const AddTeam = () => {
 
   const [formData, setFormData] = useState({
     name: '',
+    description: '',
     contactEmail: ''
   });
 
@@ -26,15 +27,15 @@ export const AddTeam = () => {
     setError('');
     setSuccess('');
 
-    // Базова валідація
+    // Basic validation
     if (!formData.name.trim()) {
-      setError('Назва команди є обов\'язковою!');
+      setError('Team name is required!');
       setLoading(false);
       return;
     }
 
     if (formData.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
-      setError('Будь ласка, введіть валідну email-адресу!');
+      setError('Please enter a valid email address!');
       setLoading(false);
       return;
     }
@@ -42,106 +43,147 @@ export const AddTeam = () => {
     try {
       await apiPost('/api/teams', formData);
 
-      setSuccess(`✅ Команду "${formData.name}" успішно зареєстровано! 🚀`);
+      setSuccess(`✅ Team "${formData.name}" registered successfully! 🚀`);
 
       setFormData({
         name: '',
+        description: '',
         contactEmail: ''
       });
 
-      // Редірект через 1.5 секунди
+      // Redirect after 1.5 seconds
       setTimeout(() => {
         navigate('/teams');
       }, 1500);
     } catch (err: any) {
-      console.error('Помилка при додаванні команди:', err);
-      setError(err.message || 'Помилка при реєстрації команди.');
+      console.error('Error adding team:', err);
+      setError(err.message || 'Failed to register team.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
-      <h1 className="text-5xl font-black text-p4yellow mb-2 uppercase tracking-wider drop-shadow-md">
-        Зареєструвати команду
-      </h1>
-      <p className="text-gray-400 mb-8 font-bold tracking-widest text-sm">
-        ПРИЄДНАЙТЕСЬ ДО LOCALIZE COMMUNITY
-      </p>
-
-      <form onSubmit={handleSubmit} className="bg-p4gray border-l-8 border-p4yellow p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative">
-        
-        {/* Декоративний елемент */}
-        <div className="absolute -top-3 -left-3 w-6 h-6 bg-p4yellow transform rotate-45"></div>
-
-        {/* Повідомлення про помилку */}
-        {error && (
-          <div className="mb-6 bg-red-900 border-2 border-red-600 text-white p-4 font-bold uppercase tracking-widest text-sm">
-            ⚠️ {error}
+    <div className="min-h-screen bg-p4-bg p-8 p4-scanline">
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-12">
+          <h1 className="text-6xl md:text-7xl font-black text-p4-white uppercase 
+                        tracking-tighter p4-text-shadow mb-2">
+            Register
+          </h1>
+          <div className="flex items-center gap-3">
+            <div className="bg-p4-yellow text-p4-bg px-4 py-2 font-black 
+                          transform -skew-x-6 shadow-p4">
+              TEAM
+            </div>
+            <h2 className="text-4xl font-black text-p4-gray uppercase">To Roster</h2>
           </div>
-        )}
-
-        {/* Повідомлення про успіх */}
-        {success && (
-          <div className="mb-6 bg-green-900 border-2 border-green-600 text-white p-4 font-bold uppercase tracking-widest text-sm">
-            {success}
-          </div>
-        )}
-
-        <div className="flex flex-col gap-6">
-
-          {/* Назва команди */}
-          <div className="flex flex-col">
-            <label className="text-p4yellow font-bold uppercase tracking-widest text-sm mb-2">
-              Назва команди
-            </label>
-            <input
-              type="text"
-              name="name"
-              required
-              disabled={loading}
-              value={formData.name}
-              onChange={handleInputChange}
-              placeholder="Наприклад: Dragon Slayers Localization"
-              className="bg-p4black text-white border-2 border-gray-600 p-3 font-bold outline-none transition-colors duration-200 focus:border-p4yellow focus:bg-p4yellow focus:text-black placeholder-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </div>
-
-          {/* Email контакту */}
-          <div className="flex flex-col">
-            <label className="text-p4yellow font-bold uppercase tracking-widest text-sm mb-2">
-              Email для зв'язку
-            </label>
-            <input
-              type="email"
-              name="contactEmail"
-              disabled={loading}
-              value={formData.contactEmail}
-              onChange={handleInputChange}
-              placeholder="contact@yourteam.com"
-              className="bg-p4black text-white border-2 border-gray-600 p-3 font-bold outline-none transition-colors duration-200 focus:border-p4yellow focus:bg-p4yellow focus:text-black placeholder-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </div>
-
-          {/* Кнопка */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-6 bg-p4yellow text-p4black border-4 border-black font-black uppercase tracking-widest text-xl py-4 hover:bg-white hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1"
-          >
-            {loading ? 'Реєстрація...' : 'Створити команду'}
-          </button>
         </div>
 
-      </form>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="relative">
+          {/* Shadow layer */}
+          <div className="absolute inset-0 bg-black transform -skew-x-2 translate-x-2 translate-y-2 -z-10"></div>
 
-      {/* Інформація */}
-      <div className="mt-10 bg-p4gray border-l-4 border-p4yellow p-6">
-        <p className="text-sm text-gray-300 font-bold leading-relaxed">
-          <span className="text-p4yellow">ℹ️ Примітка:</span> Після реєстрації команди вона буде в статусі очікування верифікації від адміністратора. Ви зможете розпочати роботу та запрошувати інших перекладачів після схвалення.
-        </p>
+          {/* Main form box */}
+          <div className="bg-p4-dark border-4 border-p4-white transform -skew-x-1 
+                        p-8 shadow-p4-xl relative z-10">
+            
+            {/* Corner accent */}
+            <div className="absolute -top-3 -right-3 w-8 h-8 bg-p4-yellow 
+                          border-2 border-p4-yellow"></div>
+
+            {/* Error */}
+            {error && (
+              <div className="mb-6 bg-red-900 border-4 border-red-600 text-white p-4 
+                            font-black uppercase tracking-widest text-sm transform -skew-x-1">
+                ⚠️ {error}
+              </div>
+            )}
+
+            {/* Success */}
+            {success && (
+              <div className="mb-6 bg-green-900 border-4 border-green-600 text-white p-4 
+                            font-black uppercase tracking-widest text-sm transform -skew-x-1">
+                {success}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-8">
+
+              {/* Team Name */}
+              <div className="flex flex-col">
+                <label className="text-p4-yellow font-black uppercase tracking-widest 
+                               text-sm mb-3">👥 Team Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  disabled={loading}
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="e.g. Dragon Slayers Localization"
+                  className="p4-input"
+                />
+              </div>
+
+              {/* Team Description */}
+              <div className="flex flex-col">
+                <label className="text-p4-yellow font-black uppercase tracking-widest 
+                               text-sm mb-3">📝 Description</label>
+                <textarea
+                  name="description"
+                  disabled={loading}
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows={4}
+                  placeholder="Tell us about your team, specialization, experience..."
+                  className="p4-input resize-none"
+                />
+              </div>
+
+              {/* Contact Email */}
+              <div className="flex flex-col">
+                <label className="text-p4-yellow font-black uppercase tracking-widest 
+                               text-sm mb-3">📧 Contact Email</label>
+                <input
+                  type="email"
+                  name="contactEmail"
+                  disabled={loading}
+                  value={formData.contactEmail}
+                  onChange={handleInputChange}
+                  placeholder="contact@yourteam.com"
+                  className="p4-input"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="p4-button-yellow text-lg hover:shadow-p4-xl
+                          disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? '⏳ Registering...' : '✨ Create Team'}
+              </button>
+            </div>
+          </div>
+        </form>
+
+        {/* Info Box */}
+        <div className="mt-8 relative">
+          <div className="absolute inset-0 bg-black transform -skew-x-2 translate-x-1 translate-y-1 -z-10"></div>
+          <div className="bg-p4-dark border-4 border-p4-yellow p-6 transform -skew-x-1 relative z-10">
+            <p className="text-p4-gray text-sm leading-relaxed">
+              <span className="text-p4-yellow font-black">ℹ️ Note:</span> After registration, your team will be pending admin verification. You can start recruiting members once approved!
+            </p>
+          </div>
+        </div>
       </div>
+
+      {/* Background decoration */}
+      <div className="fixed top-20 left-0 w-96 h-96 bg-p4-yellow opacity-5 
+                     transform -skew-x-12 -z-10 pointer-events-none"></div>
     </div>
   );
 };
