@@ -7,14 +7,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Persona 4 Golden / Midnight Channel Palette
-        'p4-bg': '#0a0a0c',           // Deep matte black (darker than before)
-        'p4-white': '#ffffff',         // Pure white
+        // Persona 4 Golden / Midnight Channel Palette - Enhanced Depth
+        'p4-bg': '#121212',            // Darkest base (body bg)
+        'p4-white': '#ffffff',         // Pure white for text
         'p4-yellow': '#ffd700',        // Persona 4 Golden Yellow
         'p4-accent': '#ffeb3b',        // Bright accent yellow
-        'p4-dark': '#141416',          // Darker variant
-        'p4-gray': '#252528',          // Mid-gray
+        'p4-dark': '#1e1e1e',          // Card background (slightly lighter than bg)
+        'p4-gray': '#262626',          // Placeholder/info box bg
         'p4-border': '#1a1a1d',        // Border color
+        'p4-light-gray': '#333333',    // Lighter gray for secondary elements
         // Legacy colors (kept for compatibility)
         p4yellow: '#FADB00',
         p4black: '#121212',

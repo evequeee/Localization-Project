@@ -48,7 +48,7 @@ export const Home = () => {
               <h3 className="text-2xl font-black text-p4-white uppercase mb-2">
                 {t('home.features.organize')}
               </h3>
-              <p className="text-sm text-p4-gray">
+              <p className="text-sm text-gray-400">
                 {t('home.features.organize_desc')}
               </p>
             </div>
@@ -69,7 +69,7 @@ export const Home = () => {
               <h3 className="text-2xl font-black text-p4-white uppercase mb-2">
                 {t('home.features.translate')}
               </h3>
-              <p className="text-sm text-p4-gray">
+              <p className="text-sm text-gray-400">
                 {t('home.features.translate_desc')}
               </p>
             </div>
@@ -90,7 +90,7 @@ export const Home = () => {
               <h3 className="text-2xl font-black text-p4-white uppercase mb-2">
                 {t('home.features.achieve')}
               </h3>
-              <p className="text-sm text-p4-gray">
+              <p className="text-sm text-gray-400">
                 {t('home.features.achieve_desc')}
               </p>
             </div>
@@ -105,7 +105,7 @@ export const Home = () => {
                         p4-text-shadow tracking-tighter">
             {t('home.cta_title')}
           </h2>
-          <p className="text-lg text-p4-gray mb-8 font-light max-w-2xl">
+          <p className="text-lg text-gray-400 mb-8 font-light max-w-2xl">
             {t('home.cta_desc')}
           </p>
           
@@ -126,32 +126,26 @@ export const Home = () => {
           <div className="bg-p4-dark border-4 border-p4-white p-6 
                         transform -skew-x-1 shadow-p4 text-center">
             <div className="text-5xl font-black text-p4-yellow">∞</div>
-            <p className="text-sm text-p4-gray uppercase font-bold mt-2">
+            <p className="text-sm text-gray-300 uppercase font-bold mt-2">
               {t('home.stats.possibilities')}
             </p>
           </div>
           <div className="bg-p4-dark border-4 border-p4-white p-6 
                         transform -skew-x-1 shadow-p4 text-center">
             <div className="text-5xl font-black text-p4-yellow">→</div>
-            <p className="text-sm text-p4-gray uppercase font-bold mt-2">
+            <p className="text-sm text-gray-300 uppercase font-bold mt-2">
               {t('home.stats.dynamics')}
             </p>
           </div>
           <div className="bg-p4-dark border-4 border-p4-white p-6 
                         transform -skew-x-1 shadow-p4 text-center">
             <div className="text-5xl font-black text-p4-yellow">◆</div>
-            <p className="text-sm text-p4-gray uppercase font-bold mt-2">
+            <p className="text-sm text-gray-300 uppercase font-bold mt-2">
               {t('home.stats.quality')}
             </p>
           </div>
         </div>
       </div>
-
-      {/* Background accent elements */}
-      <div className="fixed top-20 right-0 w-96 h-96 bg-p4-yellow opacity-5 
-                     transform skew-x-12 -z-10 pointer-events-none"></div>
-      <div className="fixed bottom-0 left-0 w-96 h-96 bg-p4-yellow opacity-5 
-                     transform -skew-x-12 -z-10 pointer-events-none"></div>
     </div>
   );
 };

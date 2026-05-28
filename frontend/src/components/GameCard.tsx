@@ -1,7 +1,7 @@
 import type { Game } from '../types';
 import { Link } from 'react-router-dom';
 import { RoleBasedRender } from './ProtectedRoute';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { apiDelete } from '../services/api';
 
 interface GameCardProps {
@@ -43,8 +43,13 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
     return 'bg-p4-gray border-p4-gray';
   };
 
-  // Calculate random progress for demo (replace with real data later)
-  const progress = Math.floor(Math.random() * 100);
+  // Calculate stable progress for demo (same value per game)
+  // Using useMemo with game.id ensures consistent value during hover/render
+  const progress = useMemo(() => {
+    // Deterministic random based on game.id
+    const seed = game.id * 9301 + 49297;
+    return Math.floor(((seed % 233280) / 233280) * 100);
+  }, [game.id]);
 
   return (
     <div
@@ -67,10 +72,10 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
                         : 'shadow-p4'}`}>
         
         {/* TOP SECTION: Game Cover Image Placeholder */}
-        <div className="relative h-48 bg-gradient-to-br from-p4-gray to-p4-bg overflow-hidden 
+        <div className="relative h-48 bg-p4-gray overflow-hidden 
                         border-b-2 border-p4-yellow flex items-center justify-center group/image">
           {/* Decorative pattern/icon */}
-          <div className="text-8xl opacity-20 group-hover/image:opacity-30 transition-opacity">
+          <div className="text-8xl opacity-30 group-hover/image:opacity-50 transition-opacity">
             🎮
           </div>
           
@@ -93,22 +98,22 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
           
           {/* Game Title */}
           <div className="mb-4">
-            <h2 className="text-xl font-black text-p4-white uppercase 
+            <h2 className="text-xl font-black text-white uppercase 
                           tracking-tight leading-snug break-words">
               {game.title}
             </h2>
-            <div className="text-xs text-p4-gray uppercase tracking-wider font-bold mt-1">
+            <div className="text-xs text-gray-300 uppercase tracking-wider font-bold mt-1">
               🌐 {game.originalLanguage}
             </div>
           </div>
 
           {/* Description - Optional */}
-          <p className="text-p4-gray text-xs mb-4 line-clamp-2 leading-relaxed">
+          <p className="text-gray-400 text-xs mb-4 line-clamp-2 leading-relaxed">
             {game.description}
           </p>
 
           {/* Localizations Info Block */}
-          <div className="mb-4 p-3 bg-p4-bg border-2 border-p4-gray">
+          <div className="mb-4 p-3 bg-p4-gray border-2 border-p4-light-gray">
             {game.localizations.length > 0 ? (
               <div className="space-y-3">
                 {game.localizations.slice(0, 2).map((loc, i) => (
@@ -120,32 +125,32 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
                     
                     {/* Progress Bar */}
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-3 bg-p4-dark border-2 border-p4-gray">
+                      <div className="flex-1 h-3 bg-neutral-700 border-2 border-p4-light-gray">
                         <div 
                           className="h-full bg-p4-yellow transition-all duration-300"
                           style={{ width: `${progress}%` }}
                         ></div>
                       </div>
-                      <span className="text-xs font-black text-p4-white whitespace-nowrap">
+                      <span className="text-xs font-black text-white whitespace-nowrap">
                         {progress}%
                       </span>
                     </div>
 
                     {/* Status */}
-                    <div className="text-xs text-p4-gray font-bold">
+                    <div className="text-xs text-gray-300 font-bold">
                       {loc.status}
                     </div>
                   </div>
                 ))}
                 
                 {game.localizations.length > 2 && (
-                  <div className="text-xs text-p4-gray italic">
+                  <div className="text-xs text-gray-400 italic">
                     +{game.localizations.length - 2} more {game.localizations.length - 2 === 1 ? 'localization' : 'localizations'}
                   </div>
                 )}
               </div>
             ) : (
-              <div className="text-xs text-p4-gray italic font-light">
+              <div className="text-xs text-gray-400 italic font-light">
                 No localizations yet
               </div>
             )}
@@ -161,12 +166,12 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
         </div>
 
         {/* BOTTOM SECTION: Action Buttons */}
-        <div className="border-t-2 border-p4-gray p-3 space-y-2">
+        <div className="border-t-2 border-p4-light-gray p-3 space-y-2">
           <RoleBasedRender 
             requiredRoles={['User', 'TeamAdmin', 'Admin']}
             fallback={
-              <div className="text-center bg-p4-dark border-2 border-dashed border-p4-gray 
-                            text-p4-gray font-bold uppercase tracking-wider py-2 text-xs">
+              <div className="text-center bg-p4-bg border-2 border-dashed border-p4-light-gray 
+                            text-gray-400 font-bold uppercase tracking-wider py-2 text-xs">
                 🔒 Sign in
               </div>
             }

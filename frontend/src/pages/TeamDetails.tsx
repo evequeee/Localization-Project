@@ -152,10 +152,6 @@ export const TeamDetails = () => {
           {teamId && <TeamRequestsPanel teamId={parseInt(teamId)} />}
         </RoleBasedRender>
       </div>
-
-      {/* Background decoration */}
-      <div className="fixed top-0 right-0 w-96 h-96 bg-p4-yellow opacity-5 
-                     transform -skew-x-12 -z-10 pointer-events-none"></div>
     </div>
   );
 };

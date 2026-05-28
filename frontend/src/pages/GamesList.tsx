@@ -24,10 +24,10 @@ export const GamesList = () => {
           <div className="text-6xl font-black text-p4-yellow mb-4 animate-pulse">
             📺
           </div>
-          <div className="text-2xl font-black text-p4-white uppercase tracking-wider">
+          <div className="text-2xl font-black text-white uppercase tracking-wider">
             Loading Game Catalog
           </div>
-          <div className="text-sm text-p4-gray mt-2">
+          <div className="text-sm text-gray-400 mt-2">
             from the Midnight Channel...
           </div>
         </div>
@@ -50,7 +50,7 @@ export const GamesList = () => {
           </div>
         </div>
         
-        <p className="text-lg text-p4-gray font-light mb-8">
+        <p className="text-lg text-gray-400 font-light mb-8">
           {games.length === 0 
             ? '📭 No games yet. Admin must add the first game.' 
             : `📺 ${games.length} ${games.length === 1 ? 'game' : 'games'} ready for translation`}
@@ -60,13 +60,13 @@ export const GamesList = () => {
         {games.length === 0 ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
-              <div className="text-8xl font-black text-p4-gray opacity-20 mb-4">
+              <div className="text-8xl font-black text-neutral-700 opacity-30 mb-4">
                 🎮
               </div>
-              <p className="text-2xl font-black text-p4-gray uppercase tracking-wider">
+              <p className="text-2xl font-black text-gray-300 uppercase tracking-wider">
                 Catalog Empty
               </p>
-              <p className="text-sm text-p4-gray mt-2 max-w-md">
+              <p className="text-sm text-gray-400 mt-2 max-w-md">
                 Come back later when the admin adds the first game!
               </p>
             </div>
@@ -83,10 +83,6 @@ export const GamesList = () => {
           </div>
         )}
       </div>
-
-      {/* Background decorations */}
-      <div className="fixed bottom-0 right-0 w-96 h-96 bg-p4-yellow opacity-5 
-                     transform skew-x-12 -z-10 pointer-events-none"></div>
     </div>
   );
 };
