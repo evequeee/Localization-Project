@@ -38,7 +38,7 @@ export const GamesList = () => {
   return (
     <div className="min-h-screen bg-p4-bg p4-scanline">
       {/* Page Header */}
-      <div className="px-8 py-12 max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto px-8 py-12">
         <div className="flex items-end gap-4 mb-8">
           <h1 className="text-6xl md:text-7xl font-black text-p4-white uppercase 
                         tracking-tighter p4-text-shadow">

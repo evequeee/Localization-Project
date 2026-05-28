@@ -29,11 +29,11 @@ function App() {
     <Router>
       <AuthProvider>
         <LanguageProvider>
-          <div className="min-h-screen bg-p4black text-white selection:bg-p4yellow selection:text-p4black font-sans">
+          <div className="min-h-screen bg-p4-bg text-white selection:bg-p4-yellow selection:text-p4-bg font-sans">
           <Navbar />
           <FloatingApiTesterButton />
 
-          <main className="max-w-7xl mx-auto relative">
+          <main className="relative">
             <Routes>
             {/* Публічні маршрути */}
               <Route path="/" element={<Home />} />
