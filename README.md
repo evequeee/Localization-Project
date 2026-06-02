@@ -1,8 +1,8 @@
-# Платформа-форум українських локалізацій | Localization Project
+# Ukrainian Localization Platform | Localization Project
 
-Комплексна веб-платформа та спільнота, створена для об'єднання українських команд перекладачів, редакторів та гравців. Проєкт має мету надати користувачам такі функції як: відстежування статусу перекладу ігор, фільтрація по статусу перекладу, підписка на переклад/команду, можливість підтримати команду перекладачів та інші.
+A comprehensive web platform and community created to unite Ukrainian teams of translators, editors, and gamers. The project aims to provide users with features such as: tracking the translation status of games, filtering by translation status, subscribing to translations/teams, the ability to support translation teams, and more.
 
-## Технологічний стек
+## Tech Stack
 - **Backend:** ASP.NET Core Web API (.NET 10)
 - **Database:** PostgreSQL + Entity Framework Core
 - **Validation:** FluentValidation
@@ -14,140 +14,146 @@
 - **Routing:** React Router v7
 - **Infrastructure:** Docker, Docker Compose
 
-## Вже реалізовано
+## Already Implemented
 
 ### Backend
-- [x] Базова архітектура бази даних (Code-First)
-- [x] Підключення до PostgreSQL
-- [x] CRUD операції для каталогу ігор (GET, POST, PUT, DELETE)
-- [x] Фільтрація ігор за статусом перекладу
-- [x] Сутність `Localization` для управління локалізаціями ігор
-- [x] Сутність `LocalizationTeam` для команд перекладачів
-- [x] Відношення M:N між локалізаціями та командами
-- [x] Патерн DTO для ізоляції моделей бази даних
-- [x] Строга валідація вхідних даних (FluentValidation)
-- [x] Ендпоінти для управління командами перекладачів (GET, POST)
-- [x] Ендпоінти для управління локалізаціями ігор (POST, GET)
-- [x] Ендпоінт для прив'язування команд до локалізацій
-- [x] **JWT Аутентифікація:** Токени, реєстрація, вхід, авторизація
-- [x] **RBAC (Role-Based Access Control):** Ролі Admin, User, Guest з перевіркою доступу на ендпоінтах
-- [x] **Seed Data:** Автоматичне створення тестового Admin користувача
+- [x] Basic database architecture (Code-First)
+- [x] PostgreSQL connection
+- [x] CRUD operations for game catalog (GET, POST, PUT, DELETE)
+- [x] Game filtering by translation status
+- [x] `Localization` entity for managing game localizations
+- [x] `LocalizationTeam` entity for translator teams
+- [x] `TeamJoinRequest` entity for team join requests
+- [x] M:N relationships between localizations and teams
+- [x] DTO pattern for database model isolation
+- [x] Strict input validation (FluentValidation)
+- [x] Endpoints for translator team management (GET, POST, GET by ID)
+- [x] Endpoints for team join requests (POST, GET, PATCH)
+- [x] Endpoints for game localization management (POST, GET)
+- [x] Endpoint for assigning teams to localizations
+- [x] **JWT Authentication:** Tokens, registration, login, authorization
+- [x] **RBAC (Role-Based Access Control):** Admin, TeamAdmin, User roles with endpoint access checks
+- [x] **Seed Data:** Automatic test Admin user creation
 
 ### Frontend
-- [x] React компоненти з Persona 4 Golden дизайном
-- [x] Маршрутизація: публічні та захищені маршрути з перевіркою ролей
-- [x] React Context API для управління аутентифікацією (AuthContext)
-- [x] Кастомний hook useAuth для доступу до auth стану
-- [x] ProtectedRoute компонент з редіректом неавторизованих користувачів
-- [x] ErrorBoundary компонент для ловлення помилок
-- [x] Сторінки: Login, Register, Home, GamesList, Teams, AddGame, AddLocalization, AddTeam
-- [x] **CRUD Форми з правильною обробкою:**
-  - Loading state на кнопці (блокування при відправці)
-  - Error banners для виведення помилок
-  - Success messages для підтвердження дій
-  - Очистка форми після успішного створення
-  - Затримана навігація для показу success повідомлення
-- [x] **API Tester сторінка** (адміністратору) для ручного тестування JWT та авторизації
-- [x] **Плаваюча кнопка API Tester** внизу зліва (видима тільки для Admin)
-- [x] Автоматичне додавання JWT токена до всіх запитів (fetch interceptor)
-- [x] Обробка 401/403 помилок з редіректом на login
+- [x] React components with Persona 4 Golden design
+- [x] Routing: public and protected routes with role checking
+- [x] React Context API for authentication management (AuthContext)
+- [x] Custom useAuth hook for accessing auth state
+- [x] ProtectedRoute component with redirect for unauthorized users
+- [x] ErrorBoundary component for error handling
+- [x] Pages: Login, Register, Home, GamesList, Teams, AddGame, AddLocalization, AddTeam
+- [x] **CRUD Forms with proper handling:**
+  - Loading state on button (disabled on submit)
+  - Error banners for displaying errors
+  - Success messages for action confirmation
+  - Form clearing after successful creation
+  - Delayed navigation for showing success message
+- [x] **API Tester page** (for administrators) for manual JWT and authorization testing
+- [x] **Floating API Tester button** at bottom left (visible only for Admin)
+- [x] Automatic JWT token addition to all requests (fetch interceptor)
+- [x] 401/403 error handling with redirect to login
 
-## API Ендпоінти (Authentication)
+## API Endpoints (Authentication)
 
-| HTTP Метод | Маршрут | Опис | Тіло запиту | Відповідь |
+| HTTP Method | Route | Description | Request Body | Response |
 | :--- | :--- | :--- | :--- | :--- |
-| **POST** | `/api/auth/register` | Реєстрація нового користувача | `{ email, password }` | `{ token, user: { id, email, role } }` |
-| **POST** | `/api/auth/login` | Вхід користувача | `{ email, password }` | `{ token, user: { id, email, role } }` |
+| **POST** | `/api/auth/register` | Register a new user | `{ email, password }` | `{ token, user: { id, email, role } }` |
+| **POST** | `/api/auth/login` | User login | `{ email, password }` | `{ token, user: { id, email, role } }` |
 
-### Ролі користувачів та права доступу
+### User Roles and Access Rights
 
-| Роль | Доступ | Дії |
+| Role | Access | Actions |
 | :--- | :--- | :--- |
-| **Guest** | Публічні сторінки | Переглядання Home, /login, /register |
-| **User** | Базовий доступ | Переглядання ігор, команд, додавання перекладів |
-| **TeamAdmin** | Адміністратор команди | Ті ж, що й у User + додавання ігор для своєї команди |
-| **Root** | Суперадміністратор | Все + управління всіма даними |
+| **User** | Basic access | View games, teams, delete own join requests |
+| **TeamAdmin** | Team administrator | Same as User + update games + manage team join requests |
+| **Admin** | Super administrator | Everything: create/delete games and teams, manage localizations |
+| **Guest** | No authentication | Only public pages (Home, /login, /register) |
 
-## Налаштування розробки
+## Development Setup
 
-### Backend запуск
+### Backend Run
 ```bash
 cd LocalizationProject
 dotnet run
-# API доступне на http://localhost:5169
+# API available at http://localhost:5169
 ```
 
-### Frontend запуск
+### Frontend Run
 ```bash
 cd frontend
 npm install
 npm run dev
-# Frontend доступне на http://localhost:5173 (або 5174, 5175 якщо порти зайняті)
+# Frontend available at http://localhost:5173 (or 5174, 5175 if ports are busy)
 ```
 
-### Docker запуск (обидва сервіси)
+### Docker Run (both services)
 ```bash
 docker-compose up --build
 # Backend: http://localhost:5169
-# Frontend буде доступне на http://localhost:3000 (якщо налаштовано в Dockerfile)
+# Frontend will be available at http://localhost:3000 (if configured in Dockerfile)
 ```
 
-## API Ендпоінти (Games)
+## API Endpoints (Games)
 
-| HTTP Метод | Маршрут | Опис | Авторизація | Тіло запиту |
+| HTTP Method | Route | Description | Authorization | Request Body |
 | :--- | :--- | :--- | :--- | :--- |
-| **GET** | `/api/games` | Отримати список усіх ігор (з фільтрацією `?status=`) | Публічна | - |
-| **GET** | `/api/games/{id}` | Отримати деталі конкретної гри за ID | Публічна | - |
-| **POST** | `/api/games` | Додати нову гру в каталог | Admin | `CreateGameDto` (JSON) |
-| **PUT** | `/api/games/{id}` | Оновити інформацію про існуючу гру | Admin, TeamAdmin | `UpdateGameDto` (JSON) |
-| **DELETE** | `/api/games/{id}` | Видалити гру з каталогу | Admin | - |
+| **GET** | `/api/games` | Get list of all games (with `?status=` filtering) | Public | - |
+| **GET** | `/api/games/{id}` | Get details of a specific game by ID | Public | - |
+| **POST** | `/api/games` | Add a new game to catalog | Admin | `CreateGameDto` (JSON) |
+| **PUT** | `/api/games/{id}` | Update information about an existing game | Admin, TeamAdmin | `UpdateGameDto` (JSON) |
+| **DELETE** | `/api/games/{id}` | Delete game from catalog | Admin | - |
 
-## API Ендпоінти (Teams)
+## API Endpoints (Teams)
 
-| HTTP Метод | Маршрут | Опис | Авторизація | Тіло запиту |
+| HTTP Method | Route | Description | Authorization | Request Body |
 | :--- | :--- | :--- | :--- | :--- |
-| **GET** | `/api/teams` | Отримати список усіх команд | Публічна | - |
-| **POST** | `/api/teams` | Додати нову команду | Admin | `CreateTeamDto` (JSON) |
+| **GET** | `/api/teams` | Get list of all teams | Public | - |
+| **GET** | `/api/teams/{teamId}` | Get team details by ID | Public | - |
+| **POST** | `/api/teams` | Add a new team | Admin | `CreateTeamDto` (JSON) |
+| **POST** | `/api/teams/{teamId}/requests` | Create a team join request | User (Authorize) | - |
+| **GET** | `/api/teams/{teamId}/requests` | Get team join requests | TeamAdmin, Admin | - |
+| **PATCH** | `/api/teams/requests/{requestId}` | Approve/reject team join request | TeamAdmin, Admin | `UpdateTeamJoinRequestDto` (JSON) |
 
-## API Ендпоінти (Localizations)
+## API Endpoints (Localizations)
 
-| HTTP Метод | Маршрут | Опис | Авторизація | Тіло запиту |
+| HTTP Method | Route | Description | Authorization | Request Body |
 | :--- | :--- | :--- | :--- | :--- |
-| **GET** | `/api/localizations` | Отримати всі локалізації з їхніми командами | Публічна | - |
-| **POST** | `/api/localizations` | Створити нову локалізацію для гри | Admin | `CreateLocalizationDto` (JSON) |
-| **POST** | `/api/localizations/{locId}/teams/{teamId}` | Прив'язати команду до локалізації | Admin, TeamAdmin | - |
+| **GET** | `/api/localizations` | Get all localizations with their teams | Public | - |
+| **POST** | `/api/localizations` | Create a new localization for a game | Admin | `CreateLocalizationDto` (JSON) |
+| **POST** | `/api/localizations/{locId}/teams/{teamId}` | Assign team to localization | Admin, TeamAdmin | - |
 
-> **Важливо:** 
-> - POST та PUT запити проходять сувору валідацію. При некоректних даних сервер повертає статус `400 Bad Request` із деталізацією помилок.
-> - Усі операції вимагають наявність JWT токена у заголовку `Authorization: Bearer {token}`
-> - Запити без токена або з протермінованим токеном повертають `401 Unauthorized`
-> - Запити з недостатніми правами повертають `403 Forbidden`
-> - Автоматичний редірект на `/login` при 401 помилці
+> **Important:** 
+> - POST and PUT requests undergo strict validation. For incorrect data, the server returns `400 Bad Request` with error details.
+> - All operations require JWT token in the `Authorization: Bearer {token}` header
+> - Requests without token or with expired token return `401 Unauthorized`
+> - Requests with insufficient permissions return `403 Forbidden`
+> - Automatic redirect to `/login` on 401 error
 
-## Швидкий запуск (Docker)
+## Quick Start (Docker)
 
 ```bash
 docker-compose up --build
 ```
 
-Після цього:
-- **API (Backend)** буде доступне за адресою: http://localhost:5169
-- **Frontend** розробляється локально на http://localhost:5173 (або далі)
+After that:
+- **API (Backend)** available at: http://localhost:5169
+- **Frontend** developed locally at http://localhost:5173
 
-## Тестування
+## Testing
 
-### Admin Тестування API (API Tester)
-1. Залогіньтеся як Admin: `admin@test.com` / `Admin123!`
-2. Натисніть на плаваючу кнопку 🧪 внизу зліва
-3. Перейдіть на сторінку `/api-tester`
-4. Тестуйте три типи запитів:
-   - **🔓 Публічний запит** (GET /api/games) - працює без токена
-   - **🔒 Захищений запит** (POST /api/teams) - потребує токена
-   - **👑 Admin запит** (POST /api/games) - потребує Admin ролі
+### Admin API Testing (API Tester)
+1. Login as Admin: `admin@test.com` / `Admin123!`
+2. Click the floating 🧪 button at bottom left
+3. Go to `/api-tester` page
+4. Test three types of requests:
+   - **🔓 Public request** (GET /api/games) - works without token
+   - **🔒 Protected request** (POST /api/teams) - requires token
+   - **👑 Admin request** (POST /api/games) - requires Admin role
 
-### Тестові облікові записи
-| Email | Пароль | Роль |
+### Test Accounts
+| Email | Password | Role |
 | :--- | :--- | :--- |
 | `admin@test.com` | `Admin123!` | Admin |
 
-> Тестові дані автоматично створюються при першому запуску бекенду
+> Test data is automatically created on first backend run
