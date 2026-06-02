@@ -7,6 +7,7 @@ public class Game
     public string Description { get; set; } = string.Empty;
     public string OriginalLanguage { get; set; } = string.Empty; // Мова оригіналу
     public string TranslationStatus { get; set; } = "Planned"; // Статус: Planned, InProgress, Completed, Dropped
+    public string? ImageUrl { get; set; } // URL обкладинки гри
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public List<Localization> Localizations { get; set; } = new();
 }

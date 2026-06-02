@@ -10,6 +10,7 @@ export interface Game {
   description: string;
   originalLanguage: string;
   translationStatus: string;
+  imageUrl?: string;
   localizations: LocalizationSummary[];
 }
 

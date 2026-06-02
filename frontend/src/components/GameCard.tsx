@@ -71,13 +71,29 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
                         ? '-translate-y-2 shadow-p4-xl' 
                         : 'shadow-p4'}`}>
         
-        {/* TOP SECTION: Game Cover Image Placeholder */}
+        {/* TOP SECTION: Game Cover Image */}
         <div className="relative h-48 bg-p4-gray overflow-hidden 
                         border-b-2 border-p4-yellow flex items-center justify-center group/image">
-          {/* Decorative pattern/icon */}
-          <div className="text-8xl opacity-30 group-hover/image:opacity-50 transition-opacity">
-            🎮
-          </div>
+          
+          {/* Real Image or Placeholder */}
+          {game.imageUrl ? (
+            <img 
+              src={game.imageUrl} 
+              alt={game.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback if image fails to load
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          ) : null}
+          
+          {/* Fallback placeholder - shows if no image or image fails */}
+          {!game.imageUrl && (
+            <div className="text-8xl opacity-30 group-hover/image:opacity-50 transition-opacity">
+              🎮
+            </div>
+          )}
           
           {/* Status Badge - Top Left */}
           <div className="absolute top-3 left-3 z-20">

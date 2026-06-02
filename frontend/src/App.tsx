@@ -9,6 +9,7 @@ import { GamesList } from './pages/GamesList';
 import { Teams } from './pages/Teams';
 import { TeamDetails } from './pages/TeamDetails';
 import { AddGame } from './pages/AddGame';
+import { EditGame } from './pages/EditGame';
 import { AddLocalization } from './pages/AddLocalization';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
@@ -21,6 +22,7 @@ const ProtectedTeams = withProtection(Teams);
 const ProtectedTeamDetails = withProtection(TeamDetails);
 const ProtectedAddTeam = withProtection(AddTeam);
 const ProtectedAddGame = withProtection(AddGame, ['Admin']);
+const ProtectedEditGame = withProtection(EditGame, ['Admin']);
 const ProtectedAddLocalization = withProtection(AddLocalization, ['User', 'TeamAdmin', 'Admin']);
 const ProtectedApiTester = withProtection(ApiTesterPage, ['Admin']);
 
@@ -46,6 +48,7 @@ function App() {
               <Route path="/team/:teamId" element={<ProtectedTeamDetails />} />
               <Route path="/add-team" element={<ProtectedAddTeam />} />
               <Route path="/add-game" element={<ProtectedAddGame />} />
+              <Route path="/edit-game/:gameId" element={<ProtectedEditGame />} />
               <Route path="/add-localization/:gameId" element={<ProtectedAddLocalization />} />
               <Route path="/api-tester" element={<ProtectedApiTester />} />
             </Routes>

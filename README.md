@@ -1,4 +1,4 @@
-# Ukrainian Localization Platform | Localization Project
+# Ukrainian Localization Platform | Localization Project | Midnight
 
 A comprehensive web platform and community created to unite Ukrainian teams of translators, editors, and gamers. The project aims to provide users with features such as: tracking the translation status of games, filtering by translation status, subscribing to translations/teams, the ability to support translation teams, and more.
 

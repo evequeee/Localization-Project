@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
-import { apiGet } from '../services/api';
+import { apiGet, apiPost } from '../services/api';
+import { RoleBasedRender } from '../components/ProtectedRoute';
 import type { Game } from '../types';
 import { GameCard } from '../components/GameCard';
 
 export const GamesList = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchingCovers, setFetchingCovers] = useState(false);
+  const [coverResults, setCoverResults] = useState<any>(null);
 
   useEffect(() => {
     apiGet('/api/games')
@@ -15,6 +18,29 @@ export const GamesList = () => {
 
   const handleGameDelete = (gameId: number) => {
     setGames(games.filter(game => game.id !== gameId));
+  };
+
+  const handleFetchCovers = async () => {
+    setFetchingCovers(true);
+    setCoverResults(null);
+    
+    try {
+      const result = await apiPost('/api/games/fetch-covers', {});
+      setCoverResults(result);
+      
+      // Перезавантажуємо ігри щоб побачити оновлені обкладинки
+      setTimeout(async () => {
+        const updated = await apiGet('/api/games');
+        setGames(updated);
+      }, 1000);
+    } catch (error: any) {
+      console.error('Error fetching covers:', error);
+      setCoverResults({
+        message: '❌ Error: ' + (error.message || 'Failed to fetch covers')
+      });
+    } finally {
+      setFetchingCovers(false);
+    }
   };
 
   if (loading) {
@@ -55,6 +81,38 @@ export const GamesList = () => {
             ? '📭 No games yet. Admin must add the first game.' 
             : `📺 ${games.length} ${games.length === 1 ? 'game' : 'games'} ready for translation`}
         </p>
+
+        {/* Auto-fetch covers button (Admin only) */}
+        <RoleBasedRender requiredRoles={['Admin']} fallback={null}>
+          <div className="mb-8 flex flex-col gap-4">
+            <button
+              onClick={handleFetchCovers}
+              disabled={fetchingCovers}
+              className="w-fit px-6 py-3 bg-p4-yellow text-p4-bg font-black uppercase 
+                       tracking-wider border-3 border-p4-yellow
+                       hover:shadow-p4-xl hover:-translate-y-1 transition-all duration-150
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {fetchingCovers ? '⏳ Fetching Covers...' : '🎨 Auto-fetch Missing Covers'}
+            </button>
+            
+            {/* Results of cover fetching */}
+            {coverResults && (
+              <div className={`p-4 border-3 font-bold uppercase text-sm ${
+                coverResults.successful ? 'bg-green-900 border-green-600 text-green-200' : 
+                'bg-blue-900 border-blue-600 text-blue-200'
+              }`}>
+                <div>{coverResults.message}</div>
+                {coverResults.total && (
+                  <div className="text-xs mt-2">
+                    Processed: {coverResults.successful}/{coverResults.total} ✅ | 
+                    Failed: {coverResults.failed} ⚠️
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </RoleBasedRender>
 
         {/* Games Grid */}
         {games.length === 0 ? (
