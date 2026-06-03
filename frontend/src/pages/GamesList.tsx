@@ -10,6 +10,7 @@ export const GamesList = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [fetchingCovers, setFetchingCovers] = useState(false);
   const [coverResults, setCoverResults] = useState<any>(null);
   const { t, language } = useLanguage();
@@ -21,12 +22,15 @@ export const GamesList = () => {
     { value: 'Planned', label: language === 'uk' ? 'ЗАПЛАНОВАНО' : 'PLANNED' }
   ];
 
-  const fetchGames = async (selectedStatus: string) => {
+  const fetchGames = async (selectedStatus: string, search: string = '') => {
     setLoading(true);
     try {
-      const endpoint = selectedStatus
-        ? `/api/games?status=${encodeURIComponent(selectedStatus)}`
-        : '/api/games';
+      const params = new URLSearchParams();
+      if (selectedStatus) params.append('status', selectedStatus);
+      if (search) params.append('search', search);
+
+      const endpoint = `/api/games${params.toString() ? `?${params.toString()}` : ''}`;
+      console.log('Fetching games with endpoint:', endpoint);
 
       const response = await apiget(endpoint);
 
@@ -37,6 +41,7 @@ export const GamesList = () => {
         responseData = response;
       }
 
+      console.log('Games fetched:', responseData.length);
       setGames(Array.isArray(responseData) ? responseData : []);
     } catch (err) {
       console.error('Error fetching games:', err);
@@ -48,12 +53,27 @@ export const GamesList = () => {
 
   // Завантаження ігор при монтуванні
   useEffect(() => {
-    void fetchGames('');
+    void fetchGames('', searchQuery);
   }, []);
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void fetchGames(selectedStatus, searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, selectedStatus]);
 
   const handleStatusChange = (_name: string, value: string) => {
     setSelectedStatus(value);
-    void fetchGames(value);
+    void fetchGames(value, searchQuery);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    console.log('Search input changed:', value);
+    setSearchQuery(value);
   };
 
   // Безпечне видалення гри
@@ -131,6 +151,20 @@ export const GamesList = () => {
             ? t('games.no_games_admin')
             : t('games.count_ready').replace('{count}', String(safeGames.length)).replace('{word}', gameWord)}
         </p>
+
+        {/* Search Input */}
+        <div className="mb-6 w-full max-w-md">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            placeholder={language === 'uk' ? 'Пошук ігор...' : 'Search games...'}
+            className="w-full px-4 py-3 bg-p4-dark border-4 border-p4-white text-white
+                     font-black uppercase tracking-wider placeholder-gray-500
+                     focus:outline-none focus:border-p4-yellow focus:ring-4 focus:ring-p4-yellow
+                     transition-all duration-150"
+          />
+        </div>
 
         {/* Status Filter */}
         <div className="mb-8 w-full max-w-xs">

@@ -5,6 +5,7 @@ using LocalizationProject.Services;
 using LocalizationProject.Validators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace LocalizationProject.Endpoints;
 
@@ -14,12 +15,15 @@ public static class GameEndpoints
     {
         var group = app.MapGroup("/api/games");
 
-        group.MapGet("/{id}", GetGameById);
         group.MapGet("/", GetAllGames);
+        group.MapGet("/{id}/details", GetGameDetails);
+        group.MapGet("/{id}", GetGameById);
         group.MapPost("/", [Authorize(Roles = $"{UserRoles.Admin}")] async (CreateGameDto dto, IValidator<CreateGameDto> validator, AppDbContext db) => await CreateGame(dto, validator, db));
         group.MapPut("/{id}", [Authorize(Roles = $"{UserRoles.Admin},{UserRoles.TeamAdmin}")] async (int id, UpdateGameDto dto, IValidator<UpdateGameDto> validator, AppDbContext db) => await UpdateGame(id, dto, validator, db));
         group.MapDelete("/{id}", [Authorize(Roles = $"{UserRoles.Admin}")] async (int id, AppDbContext db) => await DeleteGame(id, db));
         group.MapPost("/fetch-covers", [Authorize(Roles = $"{UserRoles.Admin}")] async (IGameCoverService coverService, AppDbContext db) => await FetchMissingGameCovers(coverService, db));
+        group.MapPost("/{id}/comments", [Authorize] async (int id, CreateCommentDto dto, AppDbContext db, HttpContext httpContext) => await AddComment(id, dto, db, httpContext));
+        group.MapPost("/{id}/toggle-like", [Authorize] async (int id, AppDbContext db, HttpContext httpContext) => await ToggleLike(id, db, httpContext));
     }
 
     
@@ -44,11 +48,13 @@ public static class GameEndpoints
         return Results.Ok(gameDto);
     }
 
-    private static async Task<IResult> GetAllGames(string? status, AppDbContext db)
+    private static async Task<IResult> GetAllGames(string? status, string? search, AppDbContext db)
     {
         var query = db.Games.AsQueryable();
         if (!string.IsNullOrWhiteSpace(status))
             query = query.Where(g => g.TranslationStatus == status);
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(g => EF.Functions.ILike(g.Title, $"%{search}%"));
 
         var games = await query
             .Include(g => g.Localizations)
@@ -209,13 +215,133 @@ public static class GameEndpoints
         // Зберігаємо зміни в БД
         await db.SaveChangesAsync();
 
-        return Results.Ok(new 
-        { 
+        return Results.Ok(new
+        {
             message = $"🎮 Завантаження обкладинок завершено!",
             total = gamesWithoutCovers.Count,
             successful,
             failed,
             details = results
         });
+    }
+
+    private static async Task<IResult> GetGameDetails(int id, AppDbContext db, HttpContext httpContext)
+    {
+        var game = await db.Games
+            .Include(g => g.Comments)
+                .ThenInclude(c => c.User)
+            .Include(g => g.Likes)
+            .FirstOrDefaultAsync(g => g.Id == id);
+
+        if (game == null)
+        {
+            return Results.NotFound();
+        }
+
+        var currentUserId = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userIdInt = currentUserId != null && int.TryParse(currentUserId, out var parsedId) ? parsedId : (int?)null;
+
+        var comments = game.Comments
+            .OrderByDescending(c => c.CreatedAt)
+            .Select(c => new CommentDto
+            {
+                Id = c.Id,
+                Text = c.Text,
+                GameId = c.GameId,
+                UserId = c.UserId,
+                UserName = c.User.UserName ?? "Unknown",
+                CreatedAt = c.CreatedAt
+            })
+            .ToList();
+
+        var gameDetails = new GameDetailsDto
+        {
+            Id = game.Id,
+            Title = game.Title,
+            Description = game.Description,
+            OriginalLanguage = game.OriginalLanguage,
+            TranslationStatus = game.TranslationStatus,
+            ImageUrl = game.ImageUrl,
+            CreatedAt = game.CreatedAt,
+            Comments = comments,
+            LikeCount = game.Likes.Count,
+            IsLikedByCurrentUser = userIdInt.HasValue && game.Likes.Any(l => l.UserId == userIdInt.Value)
+        };
+
+        return Results.Ok(gameDetails);
+    }
+
+    private static async Task<IResult> AddComment(int id, CreateCommentDto dto, AppDbContext db, HttpContext httpContext)
+    {
+        var game = await db.Games.FindAsync(id);
+        if (game == null)
+        {
+            return Results.NotFound();
+        }
+
+        var currentUserId = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (currentUserId == null || !int.TryParse(currentUserId, out var userId))
+        {
+            return Results.Unauthorized();
+        }
+
+        var comment = new Comment
+        {
+            Text = dto.Text,
+            GameId = id,
+            UserId = userId,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        db.Comments.Add(comment);
+        await db.SaveChangesAsync();
+
+        var commentDto = new CommentDto
+        {
+            Id = comment.Id,
+            Text = comment.Text,
+            GameId = comment.GameId,
+            UserId = comment.UserId,
+            UserName = (await db.Users.FindAsync(userId))?.UserName ?? "Unknown",
+            CreatedAt = comment.CreatedAt
+        };
+
+        return Results.Ok(commentDto);
+    }
+
+    private static async Task<IResult> ToggleLike(int id, AppDbContext db, HttpContext httpContext)
+    {
+        var game = await db.Games.FindAsync(id);
+        if (game == null)
+        {
+            return Results.NotFound();
+        }
+
+        var currentUserId = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (currentUserId == null || !int.TryParse(currentUserId, out var userId))
+        {
+            return Results.Unauthorized();
+        }
+
+        var existingLike = await db.GameLikes
+            .FirstOrDefaultAsync(gl => gl.UserId == userId && gl.GameId == id);
+
+        if (existingLike != null)
+        {
+            db.GameLikes.Remove(existingLike);
+            await db.SaveChangesAsync();
+            return Results.Ok(new { liked = false, likeCount = await db.GameLikes.CountAsync(gl => gl.GameId == id) });
+        }
+        else
+        {
+            var like = new GameLike
+            {
+                UserId = userId,
+                GameId = id
+            };
+            db.GameLikes.Add(like);
+            await db.SaveChangesAsync();
+            return Results.Ok(new { liked = true, likeCount = await db.GameLikes.CountAsync(gl => gl.GameId == id) });
+        }
     }
 }   

@@ -12,10 +12,42 @@ public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
     public DbSet<LocalizationTeam> Teams { get; set;  }
     public DbSet<Localization> Localizations { get; set; }
     public DbSet<TeamJoinRequest> TeamJoinRequests { get; set; }
+    public DbSet<Comment> Comments { get; set; }
+    public DbSet<GameLike> GameLikes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
 {
     base.OnModelCreating(modelBuilder);
+
+    // Configure GameLike composite key
+    modelBuilder.Entity<GameLike>()
+        .HasKey(gl => new { gl.UserId, gl.GameId });
+
+    // Configure Comment relationships
+    modelBuilder.Entity<Comment>()
+        .HasOne(c => c.Game)
+        .WithMany(g => g.Comments)
+        .HasForeignKey(c => c.GameId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+    modelBuilder.Entity<Comment>()
+        .HasOne(c => c.User)
+        .WithMany()
+        .HasForeignKey(c => c.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+    // Configure GameLike relationships
+    modelBuilder.Entity<GameLike>()
+        .HasOne(gl => gl.Game)
+        .WithMany(g => g.Likes)
+        .HasForeignKey(gl => gl.GameId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+    modelBuilder.Entity<GameLike>()
+        .HasOne(gl => gl.User)
+        .WithMany()
+        .HasForeignKey(gl => gl.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
 
     modelBuilder.Entity<LocalizationTeam>().HasData(
         new LocalizationTeam { Id = 1, Name = "SBT Localization", ContactEmail = "info@sbt.ua" },

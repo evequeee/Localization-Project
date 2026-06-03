@@ -93,15 +93,16 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
                         : 'shadow-p4'}`}>
         
         {/* TOP SECTION: Game Cover Image */}
-        <div className="relative h-48 bg-p4-gray overflow-hidden 
-                        border-b-2 border-p4-yellow flex items-center justify-center group/image">
+        <Link to={`/games/${game.id}`} className="relative h-48 bg-p4-gray overflow-hidden 
+                        border-b-2 border-p4-yellow flex items-center justify-center group/image
+                        cursor-pointer hover:ring-4 hover:ring-p4-yellow transition-all duration-150">
           
           {/* Real Image or Placeholder */}
           {game.imageUrl ? (
             <img 
               src={game.imageUrl} 
               alt={game.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover group-hover/image:scale-105 transition-transform duration-150"
               onError={(e) => {
                 // Fallback if image fails to load
                 e.currentTarget.style.display = 'none';
@@ -111,7 +112,7 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
           
           {/* Fallback placeholder - shows if no image or image fails */}
           {!game.imageUrl && (
-            <div className="text-8xl opacity-30 group-hover/image:opacity-50 transition-opacity">
+            <div className="text-8xl opacity-30 group-hover/image:opacity-50 group-hover/image:scale-110 transition-all">
               🎮
             </div>
           )}
@@ -128,17 +129,21 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
           {/* Accent corner - Top Right */}
           <div className="absolute -top-2 -right-2 w-6 h-6 bg-p4-yellow 
                           border-2 border-p4-yellow transform rotate-45"></div>
-        </div>
+        </Link>
 
         {/* MIDDLE SECTION: Game Info & Localizations */}
         <div className="flex-1 flex flex-col p-4">
           
           {/* Game Title */}
           <div className="mb-4">
-            <h2 className="text-xl font-black text-white uppercase 
-                          tracking-tight leading-snug break-words">
-              {game.title}
-            </h2>
+            <Link to={`/games/${game.id}`} className="block cursor-pointer group/title">
+              <h2 className="text-xl font-black text-white uppercase 
+                            tracking-tight leading-snug break-words
+                            group-hover/title:text-p4-yellow group-hover/title:scale-105
+                            transition-all duration-150">
+                {game.title}
+              </h2>
+            </Link>
             <div className="text-xs text-gray-300 uppercase tracking-wider font-bold mt-1">
               🌐 {game.originalLanguage}
             </div>
@@ -232,15 +237,6 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
                 {isDownloading ? t('games.downloading_button') : t('games.download')}
               </button>
             </div>
-            <Link 
-              to={`/add-localization/${game.id}`}
-              className="block text-center bg-p4-yellow text-p4-bg font-black uppercase 
-                        tracking-wider text-xs py-2 border-2 border-p4-yellow
-                        transition-all duration-150 hover:shadow-lg hover:-translate-y-1
-                        active:translate-y-0 active:shadow-none"
-            >
-              {t('games.add')}
-            </Link>
           </RoleBasedRender>
 
           {/* Admin Actions */}
@@ -248,7 +244,7 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
             requiredRoles={['Admin']}
             fallback={null}
           >
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 mb-2">
               <Link 
                 to={`/edit-game/${game.id}`}
                 className="text-center bg-blue-900 border-2 border-blue-600 text-blue-200 
@@ -271,6 +267,15 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
                 {isDeleting ? '⏳...' : `🗑️ ${t('games.delete')}`}
               </button>
             </div>
+            <Link 
+              to={`/add-localization/${game.id}`}
+              className="block text-center bg-p4-yellow text-p4-bg font-black uppercase 
+                        tracking-wider text-xs py-2 border-2 border-p4-yellow
+                        transition-all duration-150 hover:shadow-lg hover:-translate-y-1
+                        active:translate-y-0 active:shadow-none"
+            >
+              {t('games.add')}
+            </Link>
           </RoleBasedRender>
         </div>
       </div>

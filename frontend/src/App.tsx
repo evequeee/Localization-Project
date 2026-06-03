@@ -6,6 +6,7 @@ import { FloatingApiTesterButton } from './components/FloatingApiTesterButton';
 import { withProtection } from './components/ProtectedRoute';
 import { Home } from './pages/Home';
 import { GamesList } from './pages/GamesList';
+import { GameDetails } from './pages/GameDetails';
 import { Teams } from './pages/Teams';
 import { TeamDetails } from './pages/TeamDetails';
 import { AddGame } from './pages/AddGame';
@@ -18,6 +19,7 @@ import { ApiTesterPage } from './pages/ApiTesterPage';
 
 // Обгортаємо сторінки з захистом за ролями
 const ProtectedGamesList = withProtection(GamesList);
+const ProtectedGameDetails = withProtection(GameDetails);
 const ProtectedTeams = withProtection(Teams);
 const ProtectedTeamDetails = withProtection(TeamDetails);
 const ProtectedAddTeam = withProtection(AddTeam);
@@ -44,6 +46,7 @@ function App() {
 
               {/* Захищені маршрути */}
               <Route path="/games" element={<ProtectedGamesList />} />
+              <Route path="/games/:id" element={<ProtectedGameDetails />} />
               <Route path="/teams" element={<ProtectedTeams />} />
               <Route path="/team/:teamId" element={<ProtectedTeamDetails />} />
               <Route path="/add-team" element={<ProtectedAddTeam />} />
