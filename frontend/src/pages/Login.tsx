@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useLanguage } from '../context/LanguageContext';
 
 export const Login = () => {
   const navigate = useNavigate();
   const { login, loading } = useAuth();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -26,7 +28,7 @@ export const Login = () => {
       await login(formData.email, formData.password);
       navigate('/games');
     } catch (err: any) {
-      setError(err.message || 'Login failed. Check your credentials.');
+      setError(err.message || t('login.error'));
     }
   };
 
@@ -44,10 +46,10 @@ export const Login = () => {
           </div>
           <h1 className="text-6xl font-black text-p4-white uppercase 
                         tracking-tighter p4-text-shadow mb-2">
-            MIDNIGHT
+            {t('login.title')}
           </h1>
           <p className="text-p4-gray font-black tracking-widest text-sm">
-            ENTER THE CHANNEL
+            {t('login.subtitle')}
           </p>
           <div className="h-2 bg-gradient-to-r from-p4-yellow via-p4-accent to-transparent 
                         w-48 mx-auto mt-6"></div>
@@ -79,7 +81,7 @@ export const Login = () => {
               {/* Email Field */}
               <div className="flex flex-col">
                 <label className="text-p4-yellow font-black uppercase tracking-widest text-sm mb-3">
-                  📧 Email
+                  {t('login.email')}
                 </label>
                 <input
                   type="email"
@@ -96,7 +98,7 @@ export const Login = () => {
               {/* Password Field */}
               <div className="flex flex-col">
                 <label className="text-p4-yellow font-black uppercase tracking-widest text-sm mb-3">
-                  🔐 Password
+                  {t('login.password')}
                 </label>
                 <input
                   type="password"
@@ -117,21 +119,21 @@ export const Login = () => {
                 className="p4-button-yellow text-lg mt-4 hover:shadow-p4-xl
                           disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? '⏳ Logging in...' : '🚀 Enter'}
+                {loading ? t('login.loading') : t('login.button')}
               </button>
             </div>
 
             {/* Register Link */}
             <div className="mt-8 pt-6 border-t-2 border-p4-gray text-center">
               <p className="text-p4-gray font-black uppercase tracking-widest text-xs mb-4">
-                No Account Yet?
+                {t('login.register_link')}
               </p>
               <Link
                 to="/register"
                 className="inline-block p4-button text-sm hover:bg-p4-yellow 
                           hover:border-p4-yellow hover:text-p4-bg"
               >
-                ✨ Join
+                {t('login.register_cta')}
               </Link>
             </div>
 

@@ -13,4 +13,6 @@ public class CreateLocalizationDto
 {
     public required string Language { get; set; }
     public int GameId { get; set; }
+    public int? TeamId { get; set; }
+    public string? Status { get; set; }
 }

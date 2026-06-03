@@ -111,7 +111,7 @@ export const Navbar = () => {
               {/* User Info Section */}
               <div className="flex items-center gap-3 pl-6 border-l-2 border-p4-gray">
                 <div className="text-right">
-                  <div className="text-xs text-p4-gray uppercase tracking-wider font-light">User</div>
+                  <div className="text-xs text-p4-gray uppercase tracking-wider font-light">{t('nav.user')}</div>
                   <div className="text-sm font-black text-p4-white">{user.email}</div>
                 </div>
                 <div className="text-2xl">👤</div>
@@ -151,7 +151,7 @@ export const Navbar = () => {
             className="ml-4 px-3 py-2 border-2 border-p4-yellow bg-p4-bg text-p4-yellow 
                        font-black uppercase tracking-widest text-xs rounded hover:bg-p4-yellow 
                        hover:text-p4-bg transition-all duration-150 transform -skew-x-2"
-            title={`Switch to ${language === 'uk' ? 'English' : 'Ukrainian'}`}
+            title={t('nav.switch_to').replace('{lang}', language === 'uk' ? 'English' : 'Ukrainian')}
           >
             {language === 'uk' ? 'УКР' : 'ENG'}
           </button>

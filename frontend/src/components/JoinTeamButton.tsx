@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { apiPost } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 interface JoinTeamButtonProps {
   teamId: number;
@@ -11,6 +12,7 @@ export const JoinTeamButton = ({ teamId, teamName, onSuccess }: JoinTeamButtonPr
   const [isLoading, setIsLoading] = useState(false);
   const [hasRequested, setHasRequested] = useState(false);
   const [error, setError] = useState('');
+  const { t } = useLanguage();
 
   const handleJoinClick = async () => {
     setIsLoading(true);
@@ -22,7 +24,7 @@ export const JoinTeamButton = ({ teamId, teamName, onSuccess }: JoinTeamButtonPr
       onSuccess?.();
     } catch (err: any) {
       console.error('Error submitting join request:', err);
-      setError(err.message || 'Failed to submit join request');
+      setError(err.message || t('common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -35,7 +37,7 @@ export const JoinTeamButton = ({ teamId, teamName, onSuccess }: JoinTeamButtonPr
         className="w-full bg-p4-gray text-p4-gray border-4 border-p4-gray font-black 
                  uppercase tracking-widest text-sm py-3 cursor-not-allowed opacity-60 p4-button"
       >
-        ✅ Request Pending Review
+        {t('team_details.pending')}
       </button>
     );
   }
@@ -55,7 +57,7 @@ export const JoinTeamButton = ({ teamId, teamName, onSuccess }: JoinTeamButtonPr
                    duration-200 p4-button-yellow hover:shadow-p4 
                    ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        {isLoading ? '⏳ Submitting...' : `➕ Join "${teamName}"`}
+        {isLoading ? t('common.loading_text') : `${t('team_details.join_button')} "${teamName}"`}
       </button>
     </>
   );

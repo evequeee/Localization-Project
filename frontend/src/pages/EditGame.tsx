@@ -3,27 +3,42 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { CustomSelect } from '../components/CustomSelect';
 import { apiGet, apiPut } from '../services/api';
 import type { Game } from '../types';
-
-// Options for languages
-const languageOptions = [
-  { value: 'English', label: 'English' },
-  { value: 'Japanese', label: 'Japanese' },
-  { value: 'Korean', label: 'Korean' },
-  { value: 'Ukrainian', label: 'Ukrainian' },
-  { value: 'Other', label: 'Other' }
-];
-
-// Options for status
-const statusOptions = [
-  { value: 'Not Started', label: 'Not Started' },
-  { value: 'In Progress', label: 'In Progress' },
-  { value: 'Testing', label: 'Testing' },
-  { value: 'Completed', label: 'Completed' }
-];
+import { useLanguage } from '../context/LanguageContext';
 
 export const EditGame = () => {
   const navigate = useNavigate();
   const { gameId } = useParams<{ gameId: string }>();
+  const { t, language } = useLanguage();
+
+  const languageOptions = language === 'uk'
+    ? [
+      { value: 'English', label: 'Англійська' },
+      { value: 'Japanese', label: 'Японська' },
+      { value: 'Korean', label: 'Корейська' },
+      { value: 'Ukrainian', label: 'Українська' },
+      { value: 'Other', label: 'Інша' }
+    ]
+    : [
+      { value: 'English', label: 'English' },
+      { value: 'Japanese', label: 'Japanese' },
+      { value: 'Korean', label: 'Korean' },
+      { value: 'Ukrainian', label: 'Ukrainian' },
+      { value: 'Other', label: 'Other' }
+    ];
+
+  const statusOptions = language === 'uk'
+    ? [
+      { value: 'Not Started', label: 'Не розпочато' },
+      { value: 'In Progress', label: 'У процесі' },
+      { value: 'Testing', label: 'Тестування' },
+      { value: 'Completed', label: 'Завершено' }
+    ]
+    : [
+      { value: 'Not Started', label: 'Not Started' },
+      { value: 'In Progress', label: 'In Progress' },
+      { value: 'Testing', label: 'Testing' },
+      { value: 'Completed', label: 'Completed' }
+    ];
   const [formData, setFormData] = useState({
     title: '',
     originalLanguage: 'English',
@@ -53,7 +68,7 @@ export const EditGame = () => {
         });
       } catch (err: any) {
         console.error("Error loading game:", err);
-        setError(err.message || 'Failed to load game. Please try again.');
+        setError(err.message || t('edit_game.loading_error'));
       } finally {
         setIsLoadingGame(false);
       }
@@ -81,13 +96,13 @@ export const EditGame = () => {
 
     // Basic validation
     if (!formData.title.trim()) {
-      setError('Game title is required!');
+      setError(t('edit_game.title_required'));
       setLoading(false);
       return;
     }
 
     if (!formData.description.trim()) {
-      setError('Game description is required!');
+      setError(t('edit_game.description_required'));
       setLoading(false);
       return;
     }
@@ -101,7 +116,7 @@ export const EditGame = () => {
       
       await apiPut(`/api/games/${gameId}`, payload);
       
-      setSuccess(`✅ Game "${formData.title}" updated successfully! 🎮`);
+      setSuccess(t('edit_game.success').replace('{title}', formData.title));
       
       // Redirect after 1.5 seconds
       setTimeout(() => {
@@ -109,7 +124,7 @@ export const EditGame = () => {
       }, 1500);
     } catch (err: any) {
       console.error("Error updating game:", err);
-      setError(err.message || 'Failed to update game. Please try again.');
+      setError(err.message || t('edit_game.error'));
     } finally {
       setLoading(false);
     }
@@ -120,7 +135,7 @@ export const EditGame = () => {
       <div className="min-h-screen bg-p4-bg p-8 p4-scanline flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">⏳</div>
-          <p className="text-xl text-p4-gray font-black uppercase">Loading game...</p>
+          <p className="text-xl text-p4-gray font-black uppercase">{t('edit_game.loading')}</p>
         </div>
       </div>
     );
@@ -133,14 +148,14 @@ export const EditGame = () => {
         <div className="mb-12">
           <h1 className="text-6xl md:text-7xl font-black text-p4-white uppercase 
                         tracking-tighter p4-text-shadow mb-2">
-            Edit Game
+            {t('edit_game.title')}
           </h1>
           <div className="flex items-center gap-3">
             <div className="bg-p4-yellow text-p4-bg px-4 py-2 font-black 
                           transform -skew-x-6 shadow-p4">
               {formData.title || 'UNKNOWN'}
             </div>
-            <h2 className="text-4xl font-black text-p4-gray uppercase">in Channel</h2>
+            <h2 className="text-4xl font-black text-p4-gray uppercase">{t('edit_game.title_game')}</h2>
           </div>
         </div>
 
@@ -178,7 +193,7 @@ export const EditGame = () => {
               {/* Title Field */}
               <div className="flex flex-col">
                 <label className="text-p4-yellow font-black uppercase tracking-widest 
-                               text-sm mb-3">⚡ Title</label>
+                               text-sm mb-3">{t('add_game.input_title')}</label>
                 <input 
                   type="text" 
                   name="title"
@@ -186,7 +201,7 @@ export const EditGame = () => {
                   disabled={loading}
                   value={formData.title}
                   onChange={handleInputChange}
-                  placeholder="e.g. Persona 4 Golden"
+                  placeholder={t('add_game.input_title')}
                   className="p4-input"
                 />
               </div>
@@ -195,7 +210,7 @@ export const EditGame = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-30">
                 {/* Original Language */}
                 <CustomSelect 
-                  label="🌐 Original Language"
+                  label={t('add_game.input_language')}
                   name="originalLanguage"
                   value={formData.originalLanguage}
                   options={languageOptions}
@@ -204,7 +219,7 @@ export const EditGame = () => {
 
                 {/* Translation Status */}
                 <CustomSelect 
-                  label="📊 Translation Status"
+                  label={t('add_game.input_status')}
                   name="translationStatus"
                   value={formData.translationStatus}
                   options={statusOptions}
@@ -215,7 +230,7 @@ export const EditGame = () => {
               {/* Description Field */}
               <div className="flex flex-col relative z-10">
                 <label className="text-p4-yellow font-black uppercase tracking-widest 
-                               text-sm mb-3">📝 Description</label>
+                               text-sm mb-3">{t('add_game.input_description')}</label>
                 <textarea 
                   name="description"
                   required
@@ -223,7 +238,7 @@ export const EditGame = () => {
                   value={formData.description}
                   onChange={handleInputChange}
                   rows={5}
-                  placeholder="Tell us about this game. Genre, franchise, what makes it special..."
+                  placeholder={t('add_game.input_description')}
                   className="p4-input resize-none"
                 />
               </div>
@@ -231,18 +246,18 @@ export const EditGame = () => {
               {/* Image URL Field */}
               <div className="flex flex-col">
                 <label className="text-p4-yellow font-black uppercase tracking-widest 
-                               text-sm mb-3">🖼️ Cover Image URL</label>
+                               text-sm mb-3">{t('add_game.cover_url')}</label>
                 <input 
                   type="text" 
                   name="imageUrl"
                   disabled={loading}
                   value={formData.imageUrl}
                   onChange={handleInputChange}
-                  placeholder="e.g. https://example.com/game-cover.jpg (optional)"
+                  placeholder="https://example.com/game-cover.jpg"
                   className="p4-input"
                 />
                 <div className="text-xs text-gray-400 mt-2">
-                  Optional: Provide a direct URL to the game's cover image
+                  {t('add_game.cover_hint')}
                 </div>
               </div>
 
@@ -254,7 +269,7 @@ export const EditGame = () => {
                   className="flex-1 p4-button-yellow text-lg hover:shadow-p4-xl
                             disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? '⏳ Updating...' : '✨ Update Game'}
+                    {loading ? t('edit_game.updating') : t('edit_game.update')}
                 </button>
                 
                 <button 
@@ -266,7 +281,7 @@ export const EditGame = () => {
                            transition-all duration-200
                            disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  ← CANCEL
+                    {t('edit_game.cancel')}
                 </button>
               </div>
             </div>

@@ -2,26 +2,41 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CustomSelect } from '../components/CustomSelect';
 import { apiPost } from '../services/api';
-
-// Options for languages
-const languageOptions = [
-  { value: 'English', label: 'English' },
-  { value: 'Japanese', label: 'Japanese' },
-  { value: 'Korean', label: 'Korean' },
-  { value: 'Ukrainian', label: 'Ukrainian' },
-  { value: 'Other', label: 'Other' }
-];
-
-// Options for status
-const statusOptions = [
-  { value: 'Not Started', label: 'Not Started' },
-  { value: 'In Progress', label: 'In Progress' },
-  { value: 'Testing', label: 'Testing' },
-  { value: 'Completed', label: 'Completed' }
-];
+import { useLanguage } from '../context/LanguageContext';
 
 export const AddGame = () => {
   const navigate = useNavigate();
+  const { t, language } = useLanguage();
+
+  const languageOptions = language === 'uk'
+    ? [
+      { value: 'English', label: 'Англійська' },
+      { value: 'Japanese', label: 'Японська' },
+      { value: 'Korean', label: 'Корейська' },
+      { value: 'Ukrainian', label: 'Українська' },
+      { value: 'Other', label: 'Інша' }
+    ]
+    : [
+      { value: 'English', label: 'English' },
+      { value: 'Japanese', label: 'Japanese' },
+      { value: 'Korean', label: 'Korean' },
+      { value: 'Ukrainian', label: 'Ukrainian' },
+      { value: 'Other', label: 'Other' }
+    ];
+
+  const statusOptions = language === 'uk'
+    ? [
+      { value: 'Not Started', label: 'Не розпочато' },
+      { value: 'In Progress', label: 'У процесі' },
+      { value: 'Testing', label: 'Тестування' },
+      { value: 'Completed', label: 'Завершено' }
+    ]
+    : [
+      { value: 'Not Started', label: 'Not Started' },
+      { value: 'In Progress', label: 'In Progress' },
+      { value: 'Testing', label: 'Testing' },
+      { value: 'Completed', label: 'Completed' }
+    ];
   const [formData, setFormData] = useState({
     title: '',
     originalLanguage: 'English',
@@ -53,13 +68,13 @@ export const AddGame = () => {
 
     // Basic validation
     if (!formData.title.trim()) {
-      setError('Game title is required!');
+      setError(t('add_game.title_required'));
       setLoading(false);
       return;
     }
 
     if (!formData.description.trim()) {
-      setError('Game description is required!');
+      setError(t('add_game.description_required'));
       setLoading(false);
       return;
     }
@@ -73,7 +88,7 @@ export const AddGame = () => {
       
       await apiPost('/api/games', payload);
       
-      setSuccess(`✅ Game "${formData.title}" added successfully! 🎮`);
+      setSuccess(t('add_game.success').replace('{title}', formData.title));
       
       // Clear form
       setFormData({
@@ -90,7 +105,7 @@ export const AddGame = () => {
       }, 1500);
     } catch (err: any) {
       console.error("Error adding game:", err);
-      setError(err.message || 'Failed to add game. Please try again.');
+      setError(err.message || t('add_game.error'));
     } finally {
       setLoading(false);
     }
@@ -103,14 +118,14 @@ export const AddGame = () => {
         <div className="mb-12">
           <h1 className="text-6xl md:text-7xl font-black text-p4-white uppercase 
                         tracking-tighter p4-text-shadow mb-2">
-            Add New
+            {t('add_game.title')}
           </h1>
           <div className="flex items-center gap-3">
             <div className="bg-p4-yellow text-p4-bg px-4 py-2 font-black 
                           transform -skew-x-6 shadow-p4">
-              GAME
+              {t('add_game.title_game')}
             </div>
-            <h2 className="text-4xl font-black text-p4-gray uppercase">to Channel</h2>
+            <h2 className="text-4xl font-black text-p4-gray uppercase">{t('add_game.title_game')}</h2>
           </div>
         </div>
 
@@ -148,7 +163,7 @@ export const AddGame = () => {
               {/* Title Field */}
               <div className="flex flex-col">
                 <label className="text-p4-yellow font-black uppercase tracking-widest 
-                               text-sm mb-3">⚡ Title</label>
+                               text-sm mb-3">{t('add_game.input_title')}</label>
                 <input 
                   type="text" 
                   name="title"
@@ -156,7 +171,7 @@ export const AddGame = () => {
                   disabled={loading}
                   value={formData.title}
                   onChange={handleInputChange}
-                  placeholder="e.g. Persona 4 Golden"
+                  placeholder={t('add_game.input_title')}
                   className="p4-input"
                 />
               </div>
@@ -165,7 +180,7 @@ export const AddGame = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-30">
                 {/* Original Language */}
                 <CustomSelect 
-                  label="🌐 Original Language"
+                  label={t('add_game.input_language')}
                   name="originalLanguage"
                   value={formData.originalLanguage}
                   options={languageOptions}
@@ -174,7 +189,7 @@ export const AddGame = () => {
 
                 {/* Translation Status */}
                 <CustomSelect 
-                  label="📊 Translation Status"
+                  label={t('add_game.input_status')}
                   name="translationStatus"
                   value={formData.translationStatus}
                   options={statusOptions}
@@ -185,7 +200,7 @@ export const AddGame = () => {
               {/* Description Field */}
               <div className="flex flex-col relative z-10">
                 <label className="text-p4-yellow font-black uppercase tracking-widest 
-                               text-sm mb-3">📝 Description</label>
+                               text-sm mb-3">{t('add_game.input_description')}</label>
                 <textarea 
                   name="description"
                   required
@@ -193,7 +208,7 @@ export const AddGame = () => {
                   value={formData.description}
                   onChange={handleInputChange}
                   rows={5}
-                  placeholder="Tell us about this game. Genre, franchise, what makes it special..."
+                  placeholder={t('add_game.input_description')}
                   className="p4-input resize-none"
                 />
               </div>
@@ -201,18 +216,18 @@ export const AddGame = () => {
               {/* Image URL Field */}
               <div className="flex flex-col">
                 <label className="text-p4-yellow font-black uppercase tracking-widest 
-                               text-sm mb-3">🖼️ Cover Image URL</label>
+                               text-sm mb-3">{t('add_game.cover_url')}</label>
                 <input 
                   type="text" 
                   name="imageUrl"
                   disabled={loading}
                   value={formData.imageUrl}
                   onChange={handleInputChange}
-                  placeholder="e.g. https://example.com/game-cover.jpg (optional)"
+                  placeholder="https://example.com/game-cover.jpg"
                   className="p4-input"
                 />
                 <div className="text-xs text-gray-400 mt-2">
-                  Optional: Provide a direct URL to the game's cover image
+                  {t('add_game.cover_hint')}
                 </div>
               </div>
 
@@ -223,7 +238,7 @@ export const AddGame = () => {
                 className="p4-button-yellow text-lg hover:shadow-p4-xl
                           disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? '⏳ Creating...' : '✨ Create Game'}
+                {loading ? t('add_game.creating') : t('add_game.button')}
               </button>
             </div>
           </div>

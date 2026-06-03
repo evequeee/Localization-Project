@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useLanguage } from '../context/LanguageContext';
 
 export const Register = () => {
   const navigate = useNavigate();
   const { register, loading } = useAuth();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -26,19 +28,19 @@ export const Register = () => {
     const errors: Record<string, string> = {};
 
     if (!formData.email) {
-      errors.email = 'Email is required';
+      errors.email = t('register.email_required');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Invalid email format';
+      errors.email = t('register.email_invalid');
     }
 
     if (!formData.password) {
-      errors.password = 'Password is required';
+      errors.password = t('register.password_required');
     } else if (formData.password.length < 6) {
-      errors.password = 'Password must be at least 6 characters';
+      errors.password = t('register.password_min');
     }
 
     if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
+      errors.confirmPassword = t('register.passwords_match');
     }
 
     setValidationErrors(errors);
@@ -56,7 +58,7 @@ export const Register = () => {
       await register(formData.email, formData.password);
       navigate('/games');
     } catch (err: any) {
-      setError(err.message || 'Registration failed. Try again later.');
+      setError(err.message || t('register.error'));
     }
   };
 
@@ -74,10 +76,10 @@ export const Register = () => {
           </div>
           <h1 className="text-6xl font-black text-p4-white uppercase 
                         tracking-tighter p4-text-shadow mb-2">
-            Join Us
+            {t('register.title')}
           </h1>
           <p className="text-p4-gray font-black tracking-widest text-sm">
-            ENTER THE MIDNIGHT CHANNEL
+            {t('register.subtitle')}
           </p>
           <div className="h-2 bg-gradient-to-r from-p4-yellow via-p4-accent to-transparent 
                         w-48 mx-auto mt-6"></div>
@@ -109,7 +111,7 @@ export const Register = () => {
               {/* Email Field */}
               <div className="flex flex-col">
                 <label className="text-p4-yellow font-black uppercase tracking-widest text-sm mb-3">
-                  📧 Email
+                  {t('register.email')}
                 </label>
                 <input
                   type="email"
@@ -131,7 +133,7 @@ export const Register = () => {
               {/* Password Field */}
               <div className="flex flex-col">
                 <label className="text-p4-yellow font-black uppercase tracking-widest text-sm mb-3">
-                  🔐 Password
+                  {t('register.password')}
                 </label>
                 <input
                   type="password"
@@ -153,7 +155,7 @@ export const Register = () => {
               {/* Confirm Password Field */}
               <div className="flex flex-col">
                 <label className="text-p4-yellow font-black uppercase tracking-widest text-sm mb-3">
-                  🔄 Confirm Password
+                  {t('register.confirm_password')}
                 </label>
                 <input
                   type="password"
@@ -179,21 +181,21 @@ export const Register = () => {
                 className="p4-button-yellow text-lg mt-6 hover:shadow-p4-xl
                           disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? '⏳ Creating Account...' : '🚀 Create Account'}
+                {loading ? t('register.loading') : t('register.button')}
               </button>
             </div>
 
             {/* Login Link */}
             <div className="mt-8 pt-6 border-t-2 border-p4-gray text-center">
               <p className="text-p4-gray font-black uppercase tracking-widest text-xs mb-4">
-                Already Have an Account?
+                {t('register.signin_link')}
               </p>
               <Link
                 to="/login"
                 className="inline-block p4-button text-sm hover:bg-p4-yellow 
                           hover:border-p4-yellow hover:text-p4-bg"
               >
-                🔐 Sign In
+                {t('register.signin_cta')}
               </Link>
             </div>
 

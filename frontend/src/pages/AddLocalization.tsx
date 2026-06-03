@@ -2,28 +2,29 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiGet, apiPost } from '../services/api';
 import { CustomSelect } from '../components/CustomSelect';
-
-// Language options
-const languageOptions = [
-  { value: 'Ukrainian', label: 'Ukrainian' },
-  { value: 'English', label: 'English' },
-  { value: 'Polish', label: 'Polish' },
-  { value: 'Japanese', label: 'Japanese' },
-  { value: 'Korean', label: 'Korean' }
-];
-
-const localizationStatusOptions = [
-  { value: 'In Progress', label: 'In Progress' },
-  { value: 'Testing', label: 'Testing' },
-  { value: 'Completed', label: 'Completed' },
-  { value: 'On Hold', label: 'On Hold' }
-];
+import { useLanguage } from '../context/LanguageContext';
 
 export const AddLocalization = () => {
   const { gameId } = useParams<{ gameId: string }>(); 
   const navigate = useNavigate();
+  const { t, language } = useLanguage();
+
+  const languageOptions = [
+    { value: 'Ukrainian', label: language === 'uk' ? 'Українська' : 'Ukrainian' },
+    { value: 'English', label: language === 'uk' ? 'Англійська' : 'English' },
+    { value: 'Polish', label: language === 'uk' ? 'Польська' : 'Polish' },
+    { value: 'Japanese', label: language === 'uk' ? 'Японська' : 'Japanese' },
+    { value: 'Korean', label: language === 'uk' ? 'Корейська' : 'Korean' }
+  ];
+
+  const localizationStatusOptions = [
+    { value: 'In Progress', label: language === 'uk' ? 'У процесі' : 'In Progress' },
+    { value: 'Testing', label: language === 'uk' ? 'Тестування' : 'Testing' },
+    { value: 'Completed', label: language === 'uk' ? 'Завершено' : 'Completed' },
+    { value: 'On Hold', label: language === 'uk' ? 'Призупинено' : 'On Hold' }
+  ];
   
-  const [teamOptions, setTeamOptions] = useState([{ value: '', label: 'Loading...' }]);
+  const [teamOptions, setTeamOptions] = useState([{ value: '', label: t('common.loading') }]);
   
   const [formData, setFormData] = useState({
     gameId: gameId ? parseInt(gameId, 10) : 0,
@@ -68,7 +69,7 @@ export const AddLocalization = () => {
     e.preventDefault();
     
     if (!formData.teamId) {
-      setError('Please select a team');
+      setError(t('add_localization.select_team'));
       return;
     }
 
@@ -78,7 +79,7 @@ export const AddLocalization = () => {
     try {
       const payload = {
         gameId: formData.gameId,
-        teamId: parseInt(formData.teamId, 10),
+        teamId: formData.teamId ? parseInt(formData.teamId, 10) : undefined,
         language: formData.language,
         status: formData.status
       };
@@ -88,11 +89,11 @@ export const AddLocalization = () => {
       const response = await apiPost('/api/localizations', payload);
       console.log("Server response:", response);
       
-      alert(`Translation successfully linked to game #${formData.gameId}!`);
+      alert(t('add_localization.success').replace('{gameId}', String(formData.gameId)));
       navigate('/games');
     } catch (error: any) {
       console.error("Save error:", error);
-      setError(error.message || 'Failed to save translation.');
+      setError(error.message || t('add_localization.error'));
     } finally {
       setLoading(false);
     }
@@ -104,14 +105,14 @@ export const AddLocalization = () => {
         <div className="mb-12">
           <h1 className="text-6xl md:text-7xl font-black text-p4-white uppercase 
                         tracking-tighter p4-text-shadow mb-2">
-            Add New
+            {t('add_localization.title')}
           </h1>
           <div className="flex items-center gap-3">
             <div className="bg-p4-yellow text-p4-bg px-4 py-2 font-black 
                           transform -skew-x-6 shadow-p4">
-              TRANSLATION
+              {t('add_localization.button')}
             </div>
-            <h2 className="text-4xl font-black text-p4-gray uppercase">for Game #{gameId}</h2>
+            <h2 className="text-4xl font-black text-p4-gray uppercase">{gameId ? `#${gameId}` : ''}</h2>
           </div>
         </div>
 
@@ -141,7 +142,7 @@ export const AddLocalization = () => {
               {/* Translation Language */}
               <div className="relative z-40">
                 <CustomSelect 
-                  label="🌐 Translation Language"
+                  label={t('add_localization.language')}
                   name="language"
                   value={formData.language}
                   options={languageOptions}
@@ -152,7 +153,7 @@ export const AddLocalization = () => {
               {/* Team Selection */}
               <div className="relative z-30">
                 <CustomSelect 
-                  label="👥 Localization Team"
+                  label={t('add_localization.team')}
                   name="teamId"
                   value={formData.teamId}
                   options={teamOptions}
@@ -163,7 +164,7 @@ export const AddLocalization = () => {
               {/* Status */}
               <div className="relative z-20">
                 <CustomSelect 
-                  label="📊 Translation Status"
+                  label={t('add_localization.status')}
                   name="status"
                   value={formData.status}
                   options={localizationStatusOptions}
@@ -178,7 +179,7 @@ export const AddLocalization = () => {
                 className="p4-button-yellow text-lg hover:shadow-p4-xl mt-4
                           disabled:opacity-50 disabled:cursor-not-allowed relative z-10"
               >
-                {loading ? '⏳ Saving...' : '✨ Link Translation'}
+                {loading ? t('add_localization.saving') : t('add_localization.button')}
               </button>
             </div>
           </div>

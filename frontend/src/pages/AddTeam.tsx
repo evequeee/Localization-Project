@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiPost } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 export const AddTeam = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -29,13 +31,13 @@ export const AddTeam = () => {
 
     // Basic validation
     if (!formData.name.trim()) {
-      setError('Team name is required!');
+      setError(t('add_team.name_required'));
       setLoading(false);
       return;
     }
 
     if (formData.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
-      setError('Please enter a valid email address!');
+      setError(t('add_team.email_invalid'));
       setLoading(false);
       return;
     }
@@ -43,7 +45,7 @@ export const AddTeam = () => {
     try {
       await apiPost('/api/teams', formData);
 
-      setSuccess(`✅ Team "${formData.name}" registered successfully! 🚀`);
+      setSuccess(t('add_team.success').replace('{name}', formData.name));
 
       setFormData({
         name: '',
@@ -57,7 +59,7 @@ export const AddTeam = () => {
       }, 1500);
     } catch (err: any) {
       console.error('Error adding team:', err);
-      setError(err.message || 'Failed to register team.');
+      setError(err.message || t('add_team.error'));
     } finally {
       setLoading(false);
     }
@@ -69,14 +71,14 @@ export const AddTeam = () => {
         <div className="mb-12">
           <h1 className="text-6xl md:text-7xl font-black text-p4-white uppercase 
                         tracking-tighter p4-text-shadow mb-2">
-            Register
+            {t('add_team.title')}
           </h1>
           <div className="flex items-center gap-3">
             <div className="bg-p4-yellow text-p4-bg px-4 py-2 font-black 
                           transform -skew-x-6 shadow-p4">
-              TEAM
+              {t('teams.create')}
             </div>
-            <h2 className="text-4xl font-black text-p4-gray uppercase">To Roster</h2>
+            <h2 className="text-4xl font-black text-p4-gray uppercase">{t('home.cta_teams')}</h2>
           </div>
         </div>
 
@@ -114,7 +116,7 @@ export const AddTeam = () => {
               {/* Team Name */}
               <div className="flex flex-col">
                 <label className="text-p4-yellow font-black uppercase tracking-widest 
-                               text-sm mb-3">👥 Team Name</label>
+                               text-sm mb-3">{t('add_team.input_name')}</label>
                 <input
                   type="text"
                   name="name"
@@ -122,7 +124,7 @@ export const AddTeam = () => {
                   disabled={loading}
                   value={formData.name}
                   onChange={handleInputChange}
-                  placeholder="e.g. Dragon Slayers Localization"
+                  placeholder={t('add_team.input_name')}
                   className="p4-input"
                 />
               </div>
@@ -130,14 +132,14 @@ export const AddTeam = () => {
               {/* Team Description */}
               <div className="flex flex-col">
                 <label className="text-p4-yellow font-black uppercase tracking-widest 
-                               text-sm mb-3">📝 Description</label>
+                               text-sm mb-3">{t('add_team.input_description')}</label>
                 <textarea
                   name="description"
                   disabled={loading}
                   value={formData.description}
                   onChange={handleInputChange}
                   rows={4}
-                  placeholder="Tell us about your team, specialization, experience..."
+                  placeholder={t('add_team.input_description')}
                   className="p4-input resize-none"
                 />
               </div>
@@ -145,7 +147,7 @@ export const AddTeam = () => {
               {/* Contact Email */}
               <div className="flex flex-col">
                 <label className="text-p4-yellow font-black uppercase tracking-widest 
-                               text-sm mb-3">📧 Contact Email</label>
+                               text-sm mb-3">{t('add_team.input_email')}</label>
                 <input
                   type="email"
                   name="contactEmail"
@@ -164,7 +166,7 @@ export const AddTeam = () => {
                 className="p4-button-yellow text-lg hover:shadow-p4-xl
                           disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? '⏳ Registering...' : '✨ Create Team'}
+                {loading ? t('add_team.creating') : t('add_team.button')}
               </button>
             </div>
           </div>
@@ -175,7 +177,7 @@ export const AddTeam = () => {
           <div className="absolute inset-0 bg-black transform -skew-x-2 translate-x-1 translate-y-1 -z-10"></div>
           <div className="bg-p4-dark border-4 border-p4-yellow p-6 transform -skew-x-1 relative z-10">
             <p className="text-p4-gray text-sm leading-relaxed">
-              <span className="text-p4-yellow font-black">ℹ️ Note:</span> After registration, your team will be pending admin verification. You can start recruiting members once approved!
+              <span className="text-p4-yellow font-black">ℹ️</span> {t('add_team.note')}
             </p>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { apiGet, apiPatch } from '../services/api';
 import { RoleBasedRender } from './ProtectedRoute';
 import type { TeamJoinRequest } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 
 interface TeamRequestsPanelProps {
   teamId: number;
@@ -12,6 +13,7 @@ export const TeamRequestsPanel = ({ teamId }: TeamRequestsPanelProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [processingId, setProcessingId] = useState<number | null>(null);
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     loadRequests();
@@ -25,7 +27,7 @@ export const TeamRequestsPanel = ({ teamId }: TeamRequestsPanelProps) => {
       setRequests(Array.isArray(data) ? data : []);
     } catch (err: any) {
       console.error('Error loading join requests:', err);
-      setError(err.message || 'Failed to load join requests');
+      setError(err.message || t('team_details.loading_requests'));
     } finally {
       setLoading(false);
     }
@@ -63,9 +65,9 @@ export const TeamRequestsPanel = ({ teamId }: TeamRequestsPanelProps) => {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      Pending: { bg: 'bg-yellow-900', border: 'border-yellow-600', text: 'text-yellow-200', label: '⏳ Pending' },
-      Approved: { bg: 'bg-green-900', border: 'border-green-600', text: 'text-green-200', label: '✅ Approved' },
-      Rejected: { bg: 'bg-red-900', border: 'border-red-600', text: 'text-red-200', label: '❌ Rejected' }
+      Pending: { bg: 'bg-yellow-900', border: 'border-yellow-600', text: 'text-yellow-200', label: '⏳ ' + (language === 'uk' ? 'У очікуванні' : 'Pending') },
+      Approved: { bg: 'bg-green-900', border: 'border-green-600', text: 'text-green-200', label: '✅ ' + (language === 'uk' ? 'Підтверджено' : 'Approved') },
+      Rejected: { bg: 'bg-red-900', border: 'border-red-600', text: 'text-red-200', label: '❌ ' + (language === 'uk' ? 'Відхилено' : 'Rejected') }
     };
     
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.Pending;
@@ -85,7 +87,7 @@ export const TeamRequestsPanel = ({ teamId }: TeamRequestsPanelProps) => {
       <div className="mt-16 pt-8 border-t-4 border-p4-yellow">
         <h2 className="text-4xl font-black text-p4-yellow uppercase 
                      tracking-tighter p4-text-shadow mb-8">
-          📋 Join Requests
+          {t('team_details.requests')}
         </h2>
 
         {error && (
@@ -97,12 +99,12 @@ export const TeamRequestsPanel = ({ teamId }: TeamRequestsPanelProps) => {
 
         {loading ? (
           <div className="text-center text-p4-yellow text-lg font-bold animate-pulse">
-            📺 Loading requests...
+            {t('team_details.loading_requests')}
           </div>
         ) : requests.length === 0 ? (
           <div className="text-center bg-p4-dark border-4 border-p4-gray p-12 transform -skew-x-1">
             <div className="text-5xl font-black text-p4-gray opacity-30 mb-4">📋</div>
-            <p className="text-p4-gray font-black uppercase tracking-wider">No Requests</p>
+            <p className="text-p4-gray font-black uppercase tracking-wider">{t('team_details.no_requests')}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -126,7 +128,7 @@ export const TeamRequestsPanel = ({ teamId }: TeamRequestsPanelProps) => {
                         {getStatusBadge(request.status)}
                       </div>
                       <div className="text-xs text-p4-gray font-bold uppercase tracking-widest">
-                        📅 Submitted: {new Date(request.createdAt).toLocaleDateString('en-US')}
+                        📅 {t('team_details.submitted')}: {new Date(request.createdAt).toLocaleDateString(language === 'uk' ? 'uk-UA' : 'en-US')}
                       </div>
                     </div>
 
@@ -141,7 +143,7 @@ export const TeamRequestsPanel = ({ teamId }: TeamRequestsPanelProps) => {
                                    hover:bg-green-800 transition-colors duration-200 
                                    disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          {processingId === request.id ? '⏳...' : '✅ Approve'}
+                          {processingId === request.id ? '⏳...' : t('team_details.approve')}
                         </button>
                         <button
                           onClick={() => handleReject(request.id)}
@@ -151,7 +153,7 @@ export const TeamRequestsPanel = ({ teamId }: TeamRequestsPanelProps) => {
                                    hover:bg-red-800 transition-colors duration-200 
                                    disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          {processingId === request.id ? '⏳...' : '❌ Reject'}
+                          {processingId === request.id ? '⏳...' : t('team_details.reject')}
                         </button>
                       </div>
                     )}
@@ -159,7 +161,7 @@ export const TeamRequestsPanel = ({ teamId }: TeamRequestsPanelProps) => {
                     {/* Info for processed requests */}
                     {request.status !== 'Pending' && (
                       <div className="text-xs text-p4-gray font-bold uppercase tracking-widest md:text-right">
-                        📅 Processed: {request.resolvedAt ? new Date(request.resolvedAt).toLocaleDateString('en-US') : '—'}
+                        📅 {t('team_details.processed')}: {request.resolvedAt ? new Date(request.resolvedAt).toLocaleDateString(language === 'uk' ? 'uk-UA' : 'en-US') : '—'}
                       </div>
                     )}
                   </div>

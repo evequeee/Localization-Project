@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { RoleBasedRender } from './ProtectedRoute';
 import { useState, useMemo } from 'react';
 import { apiDelete } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 interface GameCardProps {
   game: Game;
@@ -13,9 +14,29 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [isHovered, setIsHovered] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const { t, language } = useLanguage();
+
+  const translateStatus = (status: string) => {
+    if (language !== 'uk') return status;
+
+    switch (status) {
+      case 'In Progress': return 'У процесі';
+      case 'Completed': return 'Завершено';
+      case 'Planned': return 'Заплановано';
+      case 'Not Started': return 'Не розпочато';
+      case 'Testing': return 'Тестування';
+      case 'On Hold': return 'Призупинено';
+      case 'Approved': return 'Підтверджено';
+      case 'Pending': return 'У очікуванні';
+      case 'Rejected': return 'Відхилено';
+      default: return status;
+    }
+  };
 
   const handleDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete "${game.title}"?`)) {
+    if (!window.confirm(`${t('games.delete_confirm_prefix')} "${game.title}"?`)) {
       return;
     }
 
@@ -27,7 +48,7 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
       onDelete?.(game.id);
     } catch (error: any) {
       console.error('Error deleting game:', error);
-      setDeleteError(error.message || 'Failed to delete game');
+      setDeleteError(error.message || t('games.delete_error'));
     } finally {
       setIsDeleting(false);
     }
@@ -100,7 +121,7 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
             <div className={`px-3 py-2 font-black text-xs uppercase tracking-widest 
                             border-2 border-p4-white
                             ${getStatusColor(game.translationStatus)}`}>
-              {game.translationStatus}
+              {translateStatus(game.translationStatus)}
             </div>
           </div>
 
@@ -136,7 +157,7 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
                   <div key={i} className="space-y-1">
                     {/* Team Name */}
                     <div className="text-xs font-black text-p4-yellow uppercase tracking-wider">
-                      {loc.teamNames.join(', ') || 'No team'}
+                      {loc.teamNames.join(', ') || t('localization.no_team')}
                     </div>
                     
                     {/* Progress Bar */}
@@ -154,7 +175,7 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
 
                     {/* Status */}
                     <div className="text-xs text-gray-300 font-bold">
-                      {loc.status}
+                      {translateStatus(loc.status)}
                     </div>
                   </div>
                 ))}
@@ -167,7 +188,7 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
               </div>
             ) : (
               <div className="text-xs text-gray-400 italic font-light">
-                No localizations yet
+                {t('games.no_localizations')}
               </div>
             )}
           </div>
@@ -188,10 +209,29 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
             fallback={
               <div className="text-center bg-p4-bg border-2 border-dashed border-p4-light-gray 
                             text-gray-400 font-bold uppercase tracking-wider py-2 text-xs">
-                🔒 Sign in
+                🔒 {t('games.sign_in')}
               </div>
             }
           >
+            <div className="mb-2">
+              <button
+                onClick={async () => {
+                  if (isDownloading) return;
+                  setIsDownloading(true);
+                  try {
+                    // Simulate download action
+                    await new Promise((res) => setTimeout(res, 900));
+                    alert(t('games.downloading').replace('{title}', game.title));
+                  } finally {
+                    setIsDownloading(false);
+                  }
+                }}
+                disabled={isDownloading}
+                className={`w-full text-center ${isDownloading ? 'opacity-60 cursor-wait' : ''} bg-green-600 border-2 border-green-400 text-white font-black uppercase tracking-wider text-xs py-2 transition-all duration-150 hover:shadow-lg hover:-translate-y-1`}
+              >
+                {isDownloading ? t('games.downloading_button') : t('games.download')}
+              </button>
+            </div>
             <Link 
               to={`/add-localization/${game.id}`}
               className="block text-center bg-p4-yellow text-p4-bg font-black uppercase 
@@ -199,7 +239,7 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
                         transition-all duration-150 hover:shadow-lg hover:-translate-y-1
                         active:translate-y-0 active:shadow-none"
             >
-              ➕ ADD
+              {t('games.add')}
             </Link>
           </RoleBasedRender>
 
@@ -216,7 +256,7 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
                           transition-all duration-150 hover:shadow-lg hover:-translate-y-1
                           active:translate-y-0 active:shadow-none"
               >
-                ✏️ EDIT
+                ✏️ {t('games.edit')}
               </Link>
               
               <button 
@@ -228,7 +268,7 @@ export const GameCard = ({ game, onDelete }: GameCardProps) => {
                           active:translate-y-0 active:shadow-none disabled:opacity-50 
                           disabled:cursor-not-allowed"
               >
-                {isDeleting ? '⏳...' : '🗑️ DEL'}
+                {isDeleting ? '⏳...' : `🗑️ ${t('games.delete')}`}
               </button>
             </div>
           </RoleBasedRender>

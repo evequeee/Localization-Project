@@ -1,42 +1,86 @@
 import { useState, useEffect } from 'react';
-import { apiGet, apiPost } from '../services/api';
+import { apiGet as apiget, apiPost } from '../services/api';
 import { RoleBasedRender } from '../components/ProtectedRoute';
 import type { Game } from '../types';
 import { GameCard } from '../components/GameCard';
+import { CustomSelect } from '../components/CustomSelect';
+import { useLanguage } from '../context/LanguageContext';
 
 export const GamesList = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState('');
   const [fetchingCovers, setFetchingCovers] = useState(false);
   const [coverResults, setCoverResults] = useState<any>(null);
+  const { t, language } = useLanguage();
 
+  const statusOptions = [
+    { value: '', label: language === 'uk' ? 'УСІ СТАТУСИ' : 'ALL STATUSES' },
+    { value: 'In Progress', label: language === 'uk' ? 'У ПРОЦЕСІ' : 'IN PROGRESS' },
+    { value: 'Completed', label: language === 'uk' ? 'ЗАВЕРШЕНО' : 'COMPLETED' },
+    { value: 'Planned', label: language === 'uk' ? 'ЗАПЛАНОВАНО' : 'PLANNED' }
+  ];
+
+  const fetchGames = async (selectedStatus: string) => {
+    setLoading(true);
+    try {
+      const endpoint = selectedStatus
+        ? `/api/games?status=${encodeURIComponent(selectedStatus)}`
+        : '/api/games';
+
+      const response = await apiget(endpoint);
+
+      let responseData: Game[] = [];
+      if (Array.isArray(response?.data)) {
+        responseData = response.data;
+      } else if (Array.isArray(response)) {
+        responseData = response;
+      }
+
+      setGames(Array.isArray(responseData) ? responseData : []);
+    } catch (err) {
+      console.error('Error fetching games:', err);
+      setGames([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Завантаження ігор при монтуванні
   useEffect(() => {
-    apiGet('/api/games')
-      .then(res => { setGames(res); setLoading(false); })
-      .catch(err => { console.error(err); setLoading(false); });
+    void fetchGames('');
   }, []);
 
+  const handleStatusChange = (_name: string, value: string) => {
+    setSelectedStatus(value);
+    void fetchGames(value);
+  };
+
+  // Безпечне видалення гри
   const handleGameDelete = (gameId: number) => {
-    setGames(games.filter(game => game.id !== gameId));
+    setGames(prev =>
+      Array.isArray(prev)
+        ? prev.filter(game => game.id !== gameId)
+        : []
+    );
   };
 
   const handleFetchCovers = async () => {
     setFetchingCovers(true);
     setCoverResults(null);
-    
+
     try {
       const result = await apiPost('/api/games/fetch-covers', {});
       setCoverResults(result);
-      
-      // Перезавантажуємо ігри щоб побачити оновлені обкладинки
-      setTimeout(async () => {
-        const updated = await apiGet('/api/games');
-        setGames(updated);
+
+      // Перезавантажуємо ігри
+      setTimeout(() => {
+        void fetchGames(selectedStatus);
       }, 1000);
     } catch (error: any) {
       console.error('Error fetching covers:', error);
       setCoverResults({
-        message: '❌ Error: ' + (error.message || 'Failed to fetch covers')
+        message: '❌ Error: ' + (error?.message || 'Failed to fetch covers')
       });
     } finally {
       setFetchingCovers(false);
@@ -51,15 +95,21 @@ export const GamesList = () => {
             📺
           </div>
           <div className="text-2xl font-black text-white uppercase tracking-wider">
-            Loading Game Catalog
+            {t('games.loading_title')}
           </div>
           <div className="text-sm text-gray-400 mt-2">
-            from the Midnight Channel...
+            {t('games.loading_subtitle')}
           </div>
         </div>
       </div>
     );
   }
+
+  // Безпечна перевірка масиву перед рендером
+  const safeGames = Array.isArray(games) ? games : [];
+  const gameWord = language === 'uk'
+    ? (safeGames.length === 1 ? 'гра' : safeGames.length < 5 ? 'гри' : 'ігор')
+    : (safeGames.length === 1 ? 'game' : 'games');
 
   return (
     <div className="min-h-screen bg-p4-bg p4-scanline">
@@ -68,19 +118,30 @@ export const GamesList = () => {
         <div className="flex items-end gap-4 mb-8">
           <h1 className="text-6xl md:text-7xl font-black text-p4-white uppercase 
                         tracking-tighter p4-text-shadow">
-            Game Catalog
+            {t('games.title')}
           </h1>
           <div className="bg-p4-yellow text-p4-bg px-3 py-2 font-black 
                         transform -skew-x-6 shadow-p4">
-            #{games.length}
+            #{safeGames.length}
           </div>
         </div>
-        
+
         <p className="text-lg text-gray-400 font-light mb-8">
-          {games.length === 0 
-            ? '📭 No games yet. Admin must add the first game.' 
-            : `📺 ${games.length} ${games.length === 1 ? 'game' : 'games'} ready for translation`}
+          {safeGames.length === 0
+            ? t('games.no_games_admin')
+            : t('games.count_ready').replace('{count}', String(safeGames.length)).replace('{word}', gameWord)}
         </p>
+
+        {/* Status Filter */}
+        <div className="mb-8 w-full max-w-xs">
+          <CustomSelect
+            label={t('games.filter_label')}
+            name="status"
+            value={selectedStatus}
+            options={statusOptions}
+            onChange={handleStatusChange}
+          />
+        </div>
 
         {/* Auto-fetch covers button (Admin only) */}
         <RoleBasedRender requiredRoles={['Admin']} fallback={null}>
@@ -88,25 +149,27 @@ export const GamesList = () => {
             <button
               onClick={handleFetchCovers}
               disabled={fetchingCovers}
-              className="w-fit px-6 py-3 bg-p4-yellow text-p4-bg font-black uppercase 
-                       tracking-wider border-3 border-p4-yellow
-                       hover:shadow-p4-xl hover:-translate-y-1 transition-all duration-150
+              className="w-fit px-6 py-3 bg-p4-secondary border-2 border-p4-yellow text-p4-yellow 
+                       font-black uppercase tracking-wider
+                       hover:bg-p4-card hover:shadow-p4-xl hover:-translate-y-1 transition-all duration-150
                        disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {fetchingCovers ? '⏳ Fetching Covers...' : '🎨 Auto-fetch Missing Covers'}
+              {fetchingCovers ? t('games.fetching_covers_loading') : t('games.fetching_covers')}
             </button>
-            
+
             {/* Results of cover fetching */}
             {coverResults && (
               <div className={`p-4 border-3 font-bold uppercase text-sm ${
-                coverResults.successful ? 'bg-green-900 border-green-600 text-green-200' : 
+                coverResults.successful ? 'bg-green-900 border-green-600 text-green-200' :
                 'bg-blue-900 border-blue-600 text-blue-200'
               }`}>
                 <div>{coverResults.message}</div>
                 {coverResults.total && (
                   <div className="text-xs mt-2">
-                    Processed: {coverResults.successful}/{coverResults.total} ✅ | 
-                    Failed: {coverResults.failed} ⚠️
+                    {t('games.cover_results_processed')
+                      .replace('{successful}', String(coverResults.successful))
+                      .replace('{total}', String(coverResults.total))
+                      .replace('{failed}', String(coverResults.failed))}
                   </div>
                 )}
               </div>
@@ -115,25 +178,25 @@ export const GamesList = () => {
         </RoleBasedRender>
 
         {/* Games Grid */}
-        {games.length === 0 ? (
+        {safeGames.length === 0 ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
               <div className="text-8xl font-black text-neutral-700 opacity-30 mb-4">
                 🎮
               </div>
               <p className="text-2xl font-black text-gray-300 uppercase tracking-wider">
-                Catalog Empty
+                {selectedStatus ? t('games.no_games_status') : t('games.catalog_empty')}
               </p>
               <p className="text-sm text-gray-400 mt-2 max-w-md">
-                Come back later when the admin adds the first game!
+                {selectedStatus ? t('games.try_filter') : t('games.come_later')}
               </p>
             </div>
           </div>
         ) : (
           <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr">
-            {games.map((game, index) => (
-              <div key={game.id} className="animate-in" style={{ 
-                animationDelay: `${index * 50}ms` 
+            {safeGames.map((game, index) => (
+              <div key={game.id} className="animate-in" style={{
+                animationDelay: `${index * 50}ms`
               }}>
                 <GameCard game={game} onDelete={handleGameDelete} />
               </div>

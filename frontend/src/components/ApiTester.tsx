@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { apiGet, apiPost } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+import { useLanguage } from '../context/LanguageContext';
 
 interface TestResult {
   name: string;
@@ -12,6 +13,7 @@ interface TestResult {
 
 export const ApiTester = () => {
   const { user, token, isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const [results, setResults] = useState<TestResult[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -28,9 +30,9 @@ export const ApiTester = () => {
     setLoading(true);
     try {
       const data = await apiGet('/api/games');
-      addResult('GET /api/games (Public)', 'success', `✅ Success! Retrieved ${data.length} games`, 200, data);
+      addResult('GET /api/games (Public)', 'success', t('api_tester.public_success').replace('{count}', String(data.length)), 200, data);
     } catch (error: any) {
-      addResult('GET /api/games (Public)', 'error', `❌ Error: ${error.message}`, undefined, error);
+      addResult('GET /api/games (Public)', 'error', `${t('common.error')}: ${error.message}`, undefined, error);
     } finally {
       setLoading(false);
     }
@@ -40,7 +42,7 @@ export const ApiTester = () => {
   const testProtectedRequest = async () => {
     setLoading(true);
     if (!isAuthenticated) {
-      addResult('POST /api/teams (Protected)', 'unauthorized', '❌ Not authenticated! Login required.', 401);
+      addResult('POST /api/teams (Protected)', 'unauthorized', t('api_tester.not_authenticated'), 401);
       setLoading(false);
       return;
     }
@@ -52,12 +54,12 @@ export const ApiTester = () => {
         contactEmail: 'test@example.com'
       };
       const data = await apiPost('/api/teams', testData);
-      addResult('POST /api/teams (Protected)', 'success', `✅ Success! Team created:`, 200, data);
+      addResult('POST /api/teams (Protected)', 'success', t('api_tester.team_created'), 200, data);
     } catch (error: any) {
       if (error.message.includes('401')) {
-        addResult('POST /api/teams (Protected)', 'unauthorized', '❌ Token expired (401)', 401, error);
+        addResult('POST /api/teams (Protected)', 'unauthorized', t('api_tester.token_expired'), 401, error);
       } else {
-        addResult('POST /api/teams (Protected)', 'error', `❌ Error: ${error.message}`, undefined, error);
+        addResult('POST /api/teams (Protected)', 'error', `${t('common.error')}: ${error.message}`, undefined, error);
       }
     } finally {
       setLoading(false);
@@ -68,7 +70,7 @@ export const ApiTester = () => {
   const testAdminRequest = async () => {
     setLoading(true);
     if (!isAuthenticated) {
-      addResult('POST /api/games (Admin Only)', 'unauthorized', '❌ Not authenticated! Login required.', 401);
+      addResult('POST /api/games (Admin Only)', 'unauthorized', t('api_tester.not_authenticated'), 401);
       setLoading(false);
       return;
     }
@@ -81,14 +83,14 @@ export const ApiTester = () => {
         translationStatus: 'Not Started'
       };
       const data = await apiPost('/api/games', testData);
-      addResult('POST /api/games (Admin Only)', 'success', `✅ Success! Game created (you have Admin rights):`, 200, data);
+      addResult('POST /api/games (Admin Only)', 'success', t('api_tester.game_created'), 200, data);
     } catch (error: any) {
       if (error.message.includes('401')) {
-        addResult('POST /api/games (Admin Only)', 'unauthorized', '❌ Token expired (401)', 401, error);
+        addResult('POST /api/games (Admin Only)', 'unauthorized', t('api_tester.token_expired'), 401, error);
       } else if (error.message.includes('403')) {
-        addResult('POST /api/games (Admin Only)', 'forbidden', `❌ Access Denied (403)! Your role: ${user?.role || 'unknown'}. Required: Admin`, 403, error);
+        addResult('POST /api/games (Admin Only)', 'forbidden', t('api_tester.access_denied').replace('{role}', user?.role || 'unknown'), 403, error);
       } else {
-        addResult('POST /api/games (Admin Only)', 'error', `❌ Error: ${error.message}`, undefined, error);
+        addResult('POST /api/games (Admin Only)', 'error', `${t('common.error')}: ${error.message}`, undefined, error);
       }
     } finally {
       setLoading(false);
@@ -112,19 +114,19 @@ export const ApiTester = () => {
 
   return (
     <div className="mt-12 p-8 bg-p4-dark border-4 border-p4-yellow rounded-lg">
-      <h2 className="text-3xl font-black text-p4-yellow mb-6 uppercase tracking-wider">🧪 API Tester</h2>
+      <h2 className="text-3xl font-black text-p4-yellow mb-6 uppercase tracking-wider">🧪 {t('nav.api_tester')}</h2>
 
       {/* User status */}
       <div className="mb-6 p-4 bg-p4-bg border-4 border-p4-yellow text-white">
-        <p className="font-black text-sm mb-3 uppercase tracking-widest">📊 Status:</p>
+        <p className="font-black text-sm mb-3 uppercase tracking-widest">📊 {t('api_tester.status')}</p>
         {isAuthenticated && user ? (
           <div className="space-y-2 text-sm font-bold">
-            <p>✅ Authenticated as: <span className="text-p4-yellow">{user.email}</span></p>
-            <p>Role: <span className="text-p4-yellow">{user.role}</span></p>
-            <p>Token: <span className="text-p4-yellow">{token?.substring(0, 20)}...</span></p>
+            <p>✅ {t('api_tester.authenticated_as')}: <span className="text-p4-yellow">{user.email}</span></p>
+            <p>{t('api_tester.role')}: <span className="text-p4-yellow">{user.role}</span></p>
+            <p>{t('api_tester.token')}: <span className="text-p4-yellow">{token?.substring(0, 20)}...</span></p>
           </div>
         ) : (
-          <p className="text-red-400 font-bold">❌ Not authenticated. Login for full testing.</p>
+          <p className="text-red-400 font-bold">❌ {t('api_tester.not_authenticated_short')}</p>
         )}
       </div>
 
@@ -135,7 +137,7 @@ export const ApiTester = () => {
           disabled={loading}
           className="bg-green-700 hover:bg-green-600 disabled:opacity-50 text-white font-black py-3 px-4 border-2 border-green-900 uppercase tracking-widest transition-colors"
         >
-          🔓 Test: GET /api/games
+          🔓 {t('api_tester.test_public')}
         </button>
 
         <button
@@ -143,7 +145,7 @@ export const ApiTester = () => {
           disabled={loading}
           className="bg-blue-700 hover:bg-blue-600 disabled:opacity-50 text-white font-black py-3 px-4 border-2 border-blue-900 uppercase tracking-widest transition-colors"
         >
-          🔒 Test: POST /api/teams
+          🔒 {t('api_tester.test_protected')}
         </button>
 
         <button
@@ -151,7 +153,7 @@ export const ApiTester = () => {
           disabled={loading}
           className="bg-purple-700 hover:bg-purple-600 disabled:opacity-50 text-white font-black py-3 px-4 border-2 border-purple-900 uppercase tracking-widest transition-colors"
         >
-          👑 Test: POST /api/games (Admin)
+          👑 {t('api_tester.test_admin')}
         </button>
 
         <button
@@ -159,11 +161,11 @@ export const ApiTester = () => {
           disabled={loading || results.length === 0}
           className="bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white font-black py-3 px-4 border-2 border-gray-900 uppercase tracking-widest transition-colors"
         >
-          🗑️ Clear Results
+          🗑️ {t('api_tester.clear_results')}
         </button>
       </div>
 
-      {loading && <p className="text-p4-yellow font-black text-center mb-4 animate-pulse uppercase tracking-widest">Loading...</p>}
+      {loading && <p className="text-p4-yellow font-black text-center mb-4 animate-pulse uppercase tracking-widest">{t('common.loading')}</p>}
 
       {/* Results */}
       <div className="space-y-4">
@@ -182,7 +184,7 @@ export const ApiTester = () => {
 
             {result.data && result.status === 'success' && (
               <details className="text-white text-xs">
-                <summary className="cursor-pointer font-black text-p4-yellow hover:underline uppercase tracking-widest">Show Data</summary>
+                <summary className="cursor-pointer font-black text-p4-yellow hover:underline uppercase tracking-widest">{t('api_tester.show_data')}</summary>
                 <pre className="mt-2 p-2 bg-p4-bg rounded overflow-auto max-h-48 text-gray-300">
                   {JSON.stringify(result.data, null, 2)}
                 </pre>
@@ -193,7 +195,7 @@ export const ApiTester = () => {
       </div>
 
       {results.length === 0 && (
-        <p className="text-center text-p4-gray italic font-bold">Results will appear here...</p>
+        <p className="text-center text-p4-gray italic font-bold">{t('api_tester.results_placeholder')}</p>
       )}
     </div>
   );

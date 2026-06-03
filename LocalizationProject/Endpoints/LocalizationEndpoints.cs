@@ -11,23 +11,46 @@ public static class LocalizationEndpoints
     {
         var group = app.MapGroup("/api/localizations");
 
-        group.MapPost("/", [Authorize(Roles = $"{UserRoles.Admin}")] async (CreateLocalizationDto dto, AppDbContext db) => await CreateLocalization(dto, db));
+        group.MapPost("/", [Authorize(Roles = $"{UserRoles.Admin},{UserRoles.TeamAdmin}")] async (CreateLocalizationDto dto, AppDbContext db) => await CreateLocalization(dto, db));
         group.MapPost("/{locId}/teams/{teamId}", [Authorize(Roles = $"{UserRoles.Admin},{UserRoles.TeamAdmin}")] async (int locId, int teamId, AppDbContext db) => await AddTeamToLocalization(locId, teamId, db));
         group.MapGet("/", GetAllLocalizations);
     }
 
     private static async Task<IResult> CreateLocalization(CreateLocalizationDto dto, AppDbContext db)
     {
+        LocalizationTeam? team = null;
+        if (dto.TeamId.HasValue)
+        {
+            team = await db.Teams.FindAsync(dto.TeamId.Value);
+            if (team == null)
+                return Results.BadRequest("Команду не знайдено");
+        }
+
         var localization = new Localization
         {
             Language = dto.Language,
             GameId = dto.GameId,
-            Status = "In Progress"
+            Status = string.IsNullOrWhiteSpace(dto.Status) ? "In Progress" : dto.Status
         };
+
+        if (team != null)
+        {
+            localization.Teams.Add(team);
+        }
 
         db.Localizations.Add(localization);
         await db.SaveChangesAsync();
-        return Results.Created($"/api/localizations/{localization.Id}", localization);
+
+        var resultDto = new LocalizationDto
+        {
+            Id = localization.Id,
+            Language = localization.Language,
+            Status = localization.Status,
+            GameId = localization.GameId,
+            Teams = localization.Teams.Select(t => t.Name).ToList()
+        };
+
+        return Results.Created($"/api/localizations/{localization.Id}", resultDto);
     }
 
     private static async Task<IResult> AddTeamToLocalization(int locId, int teamId, AppDbContext db)
@@ -37,6 +60,9 @@ public static class LocalizationEndpoints
 
         if (loc == null || team == null) 
             return Results.NotFound("Локалізацію або команду не знайдено");
+
+        if (loc.Teams.Any(t => t.Id == teamId))
+            return Results.Ok($"Команда {team.Name} вже закріплена за локалізацією {loc.Language}");
 
         loc.Teams.Add(team);
         await db.SaveChangesAsync();

@@ -15,5 +15,6 @@ public class GameDto
 public class LocalizationSummaryDto
 {
     public string Language { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
     public List<string> TeamNames { get; set; } = new();
 }

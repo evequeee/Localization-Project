@@ -22,6 +22,8 @@ public static class GameEndpoints
         group.MapPost("/fetch-covers", [Authorize(Roles = $"{UserRoles.Admin}")] async (IGameCoverService coverService, AppDbContext db) => await FetchMissingGameCovers(coverService, db));
     }
 
+    
+
     private static async Task<IResult> GetGameById(int id, AppDbContext db)
     {
         var game = await db.Games.FindAsync(id);
@@ -45,7 +47,7 @@ public static class GameEndpoints
     private static async Task<IResult> GetAllGames(string? status, AppDbContext db)
     {
         var query = db.Games.AsQueryable();
-        if (!string.IsNullOrEmpty(status))
+        if (!string.IsNullOrWhiteSpace(status))
             query = query.Where(g => g.TranslationStatus == status);
 
         var games = await query
@@ -63,6 +65,7 @@ public static class GameEndpoints
                 Localizations = g.Localizations.Select(l => new LocalizationSummaryDto
                 {
                     Language = l.Language,
+                    Status = l.Status,
                     TeamNames = l.Teams.Select(t => t.Name).ToList()
                 }).ToList()
             }).ToListAsync();

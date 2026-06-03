@@ -1,6 +1,7 @@
 import { createContext, useState, useCallback, type ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { logTokenDetails, logSystemTime, isTokenExpired } from '../services/tokenLogger';
+import { apiPost } from '../services/api';
 
 export type UserRole = 'Admin' | 'TeamAdmin' | 'User';
 
@@ -101,20 +102,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.group('🔐 LOGIN');
       console.log(`📧 Email: ${email}`);
       
-      // POST запит до /api/auth/login
-      const response = await fetch('http://localhost:5169/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-
-      if (!response.ok) {
-        console.error('❌ Login failed:', response.status);
-        console.groupEnd();
-        throw new Error('Login failed');
-      }
-
-      const data = await response.json();
+      const data = await apiPost('/api/auth/login', { email, password });
       
       const newToken = data.token;
       
@@ -169,20 +157,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.group('📝 REGISTER');
       console.log(`📧 Email: ${email}`);
       
-      // POST запит до /api/auth/register
-      const response = await fetch('http://localhost:5169/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, teamId })
-      });
-
-      if (!response.ok) {
-        console.error('❌ Register failed:', response.status);
-        console.groupEnd();
-        throw new Error('Registration failed');
-      }
-
-      const data = await response.json();
+      const data = await apiPost('/api/auth/register', { email, password, teamId });
 
       const newToken = data.token;
       

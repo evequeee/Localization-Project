@@ -5,7 +5,26 @@
 
 import { isTokenExpired, getTimeUntilExpiry } from './tokenLogger';
 
-const API_BASE_URL = 'http://localhost:5169';
+const API_BASE_URLS = [
+  import.meta.env.VITE_API_BASE_URL,
+  'http://localhost:8080',
+  'http://localhost:5169'
+].filter((url, index, arr): url is string => !!url && arr.indexOf(url) === index);
+
+async function fetchWithFallback(endpoint: string, init: RequestInit): Promise<Response> {
+  let lastError: unknown;
+
+  for (const baseUrl of API_BASE_URLS) {
+    try {
+      return await fetch(`${baseUrl}${endpoint}`, init);
+    } catch (error) {
+      lastError = error;
+      console.warn(`⚠️ API недоступний за ${baseUrl}, пробую інший...`);
+    }
+  }
+
+  throw lastError ?? new Error('API недоступний');
+}
 
 // Функція для отримання токена з localStorage
 function getToken(): string | null {
@@ -22,10 +41,10 @@ function clearAuth(): void {
     console.warn('🔴 Токен невалідний! Очищення даних та перенаправлення на /login...');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/login';
+    globalThis.location.href = '/login';
   } catch {
     // Якщо localStorage недоступний, просто перенаправляємо
-    window.location.href = '/login';
+    globalThis.location.href = '/login';
   }
 }
 
@@ -46,7 +65,7 @@ export async function apiGet(endpoint: string): Promise<any> {
   }
   
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetchWithFallback(endpoint, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -95,7 +114,7 @@ export async function apiPost(endpoint: string, data?: any): Promise<any> {
   console.log('Дані:', data);
   
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetchWithFallback(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -185,7 +204,7 @@ export async function apiPut(endpoint: string, data?: any): Promise<any> {
   console.log('Дані:', data);
   
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetchWithFallback(endpoint, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -262,7 +281,7 @@ export async function apiPatch(endpoint: string, data?: any): Promise<any> {
   const token = getToken();
   
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetchWithFallback(endpoint, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -299,7 +318,7 @@ export async function apiDelete(endpoint: string): Promise<any> {
   const token = getToken();
   
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetchWithFallback(endpoint, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
