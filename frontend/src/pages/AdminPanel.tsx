@@ -94,7 +94,7 @@ export const AdminPanel = () => {
           </h2>
           {!Array.isArray(pendingTeams) || pendingTeams.length === 0 ? (
             <div className="bg-p4-dark border-4 border-dashed border-p4-gray p-8 transform -skew-x-1">
-              <p className="text-gray-400 font-black uppercase">
+              <p className="text-white font-black uppercase drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
                 {language === 'uk' ? 'Немає очікуваних команд' : 'No pending teams'}
               </p>
             </div>
@@ -107,13 +107,13 @@ export const AdminPanel = () => {
                       <div className="text-2xl font-black text-p4-white uppercase mb-2">
                         {team.name}
                       </div>
-                      <div className="text-sm text-gray-400 font-black uppercase mb-1">
+                      <div className="text-sm text-gray-300 font-black uppercase mb-1 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
                         📧 {team.contactEmail || 'N/A'}
                       </div>
-                      <div className="text-sm text-gray-400 font-black uppercase mb-1">
+                      <div className="text-sm text-gray-300 font-black uppercase mb-1 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
                         👤 {team.ownerName || 'Unknown'}
                       </div>
-                      <div className="text-sm text-gray-400 font-black uppercase">
+                      <div className="text-sm text-gray-300 font-black uppercase drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
                         📩 {team.ownerEmail || 'Unknown'}
                       </div>
                     </div>

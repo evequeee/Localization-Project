@@ -71,10 +71,10 @@ export const Teams = () => {
         {teams.length === 0 ? (
           <div className="text-center bg-p4-dark border-4 border-dashed border-p4-gray p-16 transform -skew-x-1">
             <div className="text-8xl font-black text-p4-gray opacity-30 mb-4">👥</div>
-            <p className="text-2xl font-black text-p4-gray uppercase tracking-wider">
+            <p className="text-2xl font-black text-white uppercase tracking-wider drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
               {t('teams.empty')}
             </p>
-            <p className="text-sm text-p4-gray mt-2">
+            <p className="text-sm text-gray-300 mt-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
               {t('teams.first_team')}
             </p>
           </div>
@@ -108,7 +108,7 @@ export const Teams = () => {
                   </h2>
                   
                   {/* Description */}
-                  <p className="text-gray-200 text-sm mb-6 flex-grow leading-relaxed line-clamp-3 not-italic">
+                  <p className="text-gray-200 text-sm mb-6 flex-grow leading-relaxed line-clamp-3 not-italic drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
                     "{team.description || t('teams.no_description')}"
                   </p>
 
@@ -118,7 +118,7 @@ export const Teams = () => {
                   {/* Email & Status */}
                   <div className="space-y-3">
                     {team.contactEmail && (
-                      <div className="text-xs text-gray-100 font-bold uppercase tracking-widest opacity-95">
+                      <div className="text-xs text-white font-bold uppercase tracking-widest opacity-95 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
                         📧 {team.contactEmail}
                       </div>
                     )}

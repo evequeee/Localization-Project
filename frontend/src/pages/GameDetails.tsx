@@ -108,7 +108,7 @@ export const GameDetails = () => {
           <div className="text-8xl font-black text-neutral-700 opacity-30 mb-4">
             🎮
           </div>
-          <p className="text-2xl font-black text-gray-300 uppercase tracking-wider">
+          <p className="text-2xl font-black text-white uppercase tracking-wider drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
             {language === 'uk' ? 'Гру не знайдено' : 'Game not found'}
           </p>
           <button
@@ -178,7 +178,7 @@ export const GameDetails = () => {
                 </div>
               </div>
 
-              <p className="text-gray-300 text-lg leading-relaxed mb-6">
+              <p className="text-gray-200 text-lg leading-relaxed mb-6 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
                 {game.description || (language === 'uk' ? 'Опис відсутній' : 'No description available')}
               </p>
 
@@ -247,7 +247,7 @@ export const GameDetails = () => {
               <div className="text-center py-12 bg-p4-dark border-4 border-p4-white
                               border-dashed">
                 <div className="text-6xl mb-4 opacity-30">💬</div>
-                <p className="text-gray-400 font-bold uppercase">
+                <p className="text-white font-bold uppercase drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
                   {language === 'uk' ? 'Ще немає коментарів' : 'No comments yet'}
                 </p>
               </div>
@@ -267,13 +267,13 @@ export const GameDetails = () => {
                         <div className="font-black text-p4-yellow uppercase text-sm">
                           {comment.userName}
                         </div>
-                        <div className="text-gray-500 text-xs uppercase font-bold">
+                        <div className="text-gray-400 text-xs uppercase font-bold">
                           {new Date(comment.createdAt).toLocaleDateString()}
                         </div>
                       </div>
                     </div>
                   </div>
-                  <p className="text-gray-300 leading-relaxed">
+                  <p className="text-gray-200 leading-relaxed drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
                     {comment.text}
                   </p>
                 </div>

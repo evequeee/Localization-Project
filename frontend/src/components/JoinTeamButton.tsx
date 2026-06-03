@@ -19,7 +19,7 @@ export const JoinTeamButton = ({ teamId, teamName, onSuccess }: JoinTeamButtonPr
     setError('');
 
     try {
-      await apiPost(`/api/teams/${teamId}/requests`, {});
+      await apiPost(`/api/teams/${teamId}/join`, {});
       setHasRequested(true);
       onSuccess?.();
     } catch (err: any) {
@@ -34,8 +34,8 @@ export const JoinTeamButton = ({ teamId, teamName, onSuccess }: JoinTeamButtonPr
     return (
       <button
         disabled
-        className="w-full bg-p4-gray text-p4-gray border-4 border-p4-gray font-black 
-                 uppercase tracking-widest text-sm py-3 cursor-not-allowed opacity-60 p4-button"
+        className="w-full bg-p4-gray text-white border-4 border-p4-gray font-black
+                 uppercase tracking-widest text-lg py-3 cursor-not-allowed opacity-60 p4-button p-4 text-center"
       >
         {t('team_details.pending')}
       </button>

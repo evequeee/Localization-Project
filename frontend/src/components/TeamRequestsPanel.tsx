@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiGet, apiPatch } from '../services/api';
+import { apiGet, apiPost } from '../services/api';
 import { RoleBasedRender } from './ProtectedRoute';
 import type { TeamJoinRequest } from '../types';
 import { useLanguage } from '../context/LanguageContext';
@@ -36,10 +36,9 @@ export const TeamRequestsPanel = ({ teamId }: TeamRequestsPanelProps) => {
   const handleApprove = async (requestId: number) => {
     setProcessingId(requestId);
     try {
-      await apiPatch(`/api/teams/requests/${requestId}`, { status: 'Approved' });
-      setRequests(requests.map(r => 
-        r.id === requestId ? { ...r, status: 'Approved' } : r
-      ));
+      await apiPost(`/api/teams/requests/${requestId}/approve`, {});
+      setRequests(requests.filter(r => r.id !== requestId));
+      alert(language === 'uk' ? 'Заявку схвалено!' : 'Request approved!');
     } catch (err: any) {
       console.error('Error approving request:', err);
       setError(err.message || 'Failed to approve request');
@@ -51,10 +50,9 @@ export const TeamRequestsPanel = ({ teamId }: TeamRequestsPanelProps) => {
   const handleReject = async (requestId: number) => {
     setProcessingId(requestId);
     try {
-      await apiPatch(`/api/teams/requests/${requestId}`, { status: 'Rejected' });
-      setRequests(requests.map(r => 
-        r.id === requestId ? { ...r, status: 'Rejected' } : r
-      ));
+      await apiPost(`/api/teams/requests/${requestId}/reject`, {});
+      setRequests(requests.filter(r => r.id !== requestId));
+      alert(language === 'uk' ? 'Заявку відхилено!' : 'Request rejected!');
     } catch (err: any) {
       console.error('Error rejecting request:', err);
       setError(err.message || 'Failed to reject request');
@@ -132,31 +130,20 @@ export const TeamRequestsPanel = ({ teamId }: TeamRequestsPanelProps) => {
                       </div>
                     </div>
 
-                    {/* Action buttons for Pending requests */}
-                    {request.status === 'Pending' && (
-                      <div className="flex gap-3 flex-wrap md:flex-nowrap">
-                        <button
-                          onClick={() => handleApprove(request.id)}
-                          disabled={processingId === request.id}
-                          className="flex-1 md:flex-none bg-green-900 border-2 border-green-600 
-                                   text-green-200 font-black uppercase tracking-widest text-sm py-2 px-4 
-                                   hover:bg-green-800 transition-colors duration-200 
-                                   disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {processingId === request.id ? '⏳...' : t('team_details.approve')}
-                        </button>
-                        <button
-                          onClick={() => handleReject(request.id)}
-                          disabled={processingId === request.id}
-                          className="flex-1 md:flex-none bg-red-900 border-2 border-red-600 
-                                   text-red-200 font-black uppercase tracking-widest text-sm py-2 px-4 
-                                   hover:bg-red-800 transition-colors duration-200 
-                                   disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {processingId === request.id ? '⏳...' : t('team_details.reject')}
-                        </button>
-                      </div>
-                    )}
+                    <div className="flex gap-4 mt-4">
+                      <button
+                        onClick={() => handleApprove(request.id)}
+                        className="bg-[#ffe600] text-black font-bold uppercase px-6 py-2 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+                      >
+                        УХВАЛИТИ
+                      </button>
+                      <button
+                        onClick={() => handleReject(request.id)}
+                        className="bg-red-600 text-white font-bold uppercase px-6 py-2 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+                      >
+                        ВІДХИЛИТИ
+                      </button>
+                    </div>
 
                     {/* Info for processed requests */}
                     {request.status !== 'Pending' && (

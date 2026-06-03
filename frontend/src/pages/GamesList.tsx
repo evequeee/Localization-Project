@@ -218,10 +218,10 @@ export const GamesList = () => {
               <div className="text-8xl font-black text-neutral-700 opacity-30 mb-4">
                 🎮
               </div>
-              <p className="text-2xl font-black text-gray-300 uppercase tracking-wider">
+              <p className="text-2xl font-black text-white uppercase tracking-wider drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
                 {selectedStatus ? t('games.no_games_status') : t('games.catalog_empty')}
               </p>
-              <p className="text-sm text-gray-400 mt-2 max-w-md">
+              <p className="text-sm text-gray-300 mt-2 max-w-md drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
                 {selectedStatus ? t('games.try_filter') : t('games.come_later')}
               </p>
             </div>

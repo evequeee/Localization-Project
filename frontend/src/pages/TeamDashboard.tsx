@@ -7,6 +7,7 @@ interface DashboardData {
     id: number;
     name: string;
     contactEmail: string;
+    description: string;
     isApproved: boolean;
   };
   Projects: Array<{
@@ -105,6 +106,9 @@ export const TeamDashboard = () => {
           <div className="bg-p4-yellow text-p4-bg px-4 py-2 font-black transform -skew-x-6 shadow-p4 inline-block">
             {data.Team?.name || language === 'uk' ? 'Невідома команда' : 'Unknown Team'}
           </div>
+          <p className="text-gray-200 mt-4 text-lg">
+            {data.Team?.description || 'Опис відсутній'}
+          </p>
         </div>
 
         {/* Pending Team Warning */}
@@ -112,13 +116,13 @@ export const TeamDashboard = () => {
           <div className="bg-p4-dark border-4 border-p4-yellow p-12 transform -skew-x-1 mb-12">
             <div className="transform skew-x-1 text-center">
               <div className="text-6xl font-black text-p4-yellow mb-6">⏳</div>
-              <h2 className="text-4xl font-black text-p4-white uppercase tracking-tighter mb-4">
+              <h2 className="text-4xl font-black text-p4-white uppercase tracking-tighter mb-4 drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">
                 {language === 'uk' ? 'ВАША КОМАНДА НА МОДЕРАЦІЇ' : 'YOUR TEAM IS UNDER MODERATION'}
               </h2>
-              <p className="text-xl text-gray-300 font-black uppercase mb-2">
+              <p className="text-xl text-gray-200 font-black uppercase mb-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
                 {language === 'uk' ? 'Очікуйте підтвердження адміністратором.' : 'Awaiting administrator approval.'}
               </p>
-              <p className="text-sm text-gray-400 font-black uppercase">
+              <p className="text-sm text-gray-300 font-black uppercase drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
                 {language === 'uk' ? 'Після схвалення ви отримаєте доступ до управління складом та проєктами.' : 'After approval, you will gain access to team management and projects.'}
               </p>
             </div>
@@ -133,7 +137,7 @@ export const TeamDashboard = () => {
             </h2>
             {!Array.isArray(data.Projects) || data.Projects.length === 0 ? (
               <div className="bg-p4-dark border-4 border-dashed border-p4-gray p-8 transform -skew-x-1">
-                <p className="text-gray-400 font-black uppercase">
+                <p className="text-white font-black uppercase drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
                   {language === 'uk' ? 'Немає активних проєктів' : 'No active projects'}
                 </p>
               </div>
@@ -149,7 +153,7 @@ export const TeamDashboard = () => {
                         <span className="text-p4-yellow font-black uppercase">
                           {project.language || 'N/A'}
                         </span>
-                        <span className="text-gray-300 font-black uppercase">
+                        <span className="text-gray-200 font-black uppercase drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
                           {project.status || 'N/A'}
                         </span>
                       </div>
@@ -169,7 +173,7 @@ export const TeamDashboard = () => {
             </h2>
             {!Array.isArray(data.Members) || data.Members.length === 0 ? (
               <div className="bg-p4-dark border-4 border-dashed border-p4-gray p-8 transform -skew-x-1">
-                <p className="text-gray-400 font-black uppercase">
+                <p className="text-white font-black uppercase drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
                   {language === 'uk' ? 'Немає членів команди' : 'No team members'}
                 </p>
               </div>
@@ -181,7 +185,7 @@ export const TeamDashboard = () => {
                       <div className="text-lg font-black text-p4-white uppercase mb-1">
                         {member.userName || language === 'uk' ? 'Невідомий користувач' : 'Unknown User'}
                       </div>
-                      <div className="text-xs text-gray-400 font-black uppercase">
+                      <div className="text-xs text-gray-300 font-black uppercase drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
                         {member.email || 'N/A'}
                       </div>
                     </div>
@@ -200,7 +204,7 @@ export const TeamDashboard = () => {
             </h2>
             {!Array.isArray(data.Requests) || data.Requests.length === 0 ? (
               <div className="bg-p4-dark border-4 border-dashed border-p4-gray p-8 transform -skew-x-1">
-                <p className="text-gray-400 font-black uppercase">
+                <p className="text-white font-black uppercase drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
                   {language === 'uk' ? 'Немає нових заявок' : 'No new requests'}
                 </p>
               </div>
@@ -213,10 +217,10 @@ export const TeamDashboard = () => {
                         <div className="text-lg font-black text-p4-white uppercase mb-1">
                           {request.userName || language === 'uk' ? 'Невідомий користувач' : 'Unknown User'}
                         </div>
-                        <div className="text-sm text-gray-400 font-black uppercase mb-2">
+                        <div className="text-sm text-gray-300 font-black uppercase mb-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
                           {request.userEmail || 'N/A'}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-400 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
                           {request.createdAt ? new Date(request.createdAt).toLocaleString() : 'N/A'}
                         </div>
                       </div>

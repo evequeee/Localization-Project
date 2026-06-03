@@ -108,7 +108,7 @@ export const TeamDetails = () => {
               <div className="md:col-span-2">
                 <h2 className="text-3xl font-black text-p4-yellow uppercase 
                              tracking-tighter p4-text-shadow mb-6">{t('team_details.about')}</h2>
-                <p className="text-p4-gray text-lg leading-relaxed">
+                <p className="text-gray-200 text-lg leading-relaxed drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
                   {team.description || t('team_details.no_description')}
                 </p>
               </div>
