@@ -1,11 +1,18 @@
 namespace LocalizationProject.Models;
 
+public enum JoinRequestStatus
+{
+    Pending = 0,
+    Approved = 1,
+    Rejected = 2
+}
+
 public class TeamJoinRequest
 {
     public int Id { get; set; }
     public int UserId { get; set; }
     public int TeamId { get; set; }
-    public string Status { get; set; } = "Pending"; // Pending, Approved, Rejected
+    public JoinRequestStatus Status { get; set; } = JoinRequestStatus.Pending;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ResolvedAt { get; set; }
 

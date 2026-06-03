@@ -58,7 +58,7 @@ public static class GameEndpoints
 
         var games = await query
             .Include(g => g.Localizations)
-                .ThenInclude(l => l.Teams)
+                .ThenInclude(l => l.Team)
             .Select(g => new GameDto
             {
                 Id = g.Id,
@@ -72,7 +72,7 @@ public static class GameEndpoints
                 {
                     Language = l.Language,
                     Status = l.Status,
-                    TeamNames = l.Teams.Select(t => t.Name).ToList()
+                    TeamNames = l.Team != null ? new List<string> { l.Team.Name } : new List<string>()
                 }).ToList()
             }).ToListAsync();
 

@@ -3,6 +3,7 @@ using System;
 using LocalizationProject;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LocalizationProject.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260603211512_AddTeamWorkflows")]
+    partial class AddTeamWorkflows
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -339,9 +342,6 @@ namespace LocalizationProject.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -361,7 +361,6 @@ namespace LocalizationProject.Migrations
                             Id = 1,
                             ContactEmail = "info@sbt.ua",
                             Description = "",
-                            IsApproved = false,
                             Name = "SBT Localization",
                             OwnerId = 1
                         },
@@ -370,7 +369,6 @@ namespace LocalizationProject.Migrations
                             Id = 2,
                             ContactEmail = "contact@localize.org",
                             Description = "",
-                            IsApproved = false,
                             Name = "Localize Team",
                             OwnerId = 2
                         });

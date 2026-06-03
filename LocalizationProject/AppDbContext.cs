@@ -49,9 +49,43 @@ public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
         .HasForeignKey(gl => gl.UserId)
         .OnDelete(DeleteBehavior.Cascade);
 
+    // Configure LocalizationTeam Owner relationship
+    modelBuilder.Entity<LocalizationTeam>()
+        .HasOne(t => t.Owner)
+        .WithMany()
+        .HasForeignKey(t => t.OwnerId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+    // Configure AppUser Team relationship
+    modelBuilder.Entity<AppUser>()
+        .HasOne(u => u.Team)
+        .WithMany()
+        .HasForeignKey(u => u.TeamId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+    // Configure Localization Team relationship
+    modelBuilder.Entity<Localization>()
+        .HasOne(l => l.Team)
+        .WithMany(t => t.Localizations)
+        .HasForeignKey(l => l.TeamId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+    // Configure TeamJoinRequest relationships
+    modelBuilder.Entity<TeamJoinRequest>()
+        .HasOne(tjr => tjr.User)
+        .WithMany(u => u.JoinRequests)
+        .HasForeignKey(tjr => tjr.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+    modelBuilder.Entity<TeamJoinRequest>()
+        .HasOne(tjr => tjr.Team)
+        .WithMany(t => t.JoinRequests)
+        .HasForeignKey(tjr => tjr.TeamId)
+        .OnDelete(DeleteBehavior.Cascade);
+
     modelBuilder.Entity<LocalizationTeam>().HasData(
-        new LocalizationTeam { Id = 1, Name = "SBT Localization", ContactEmail = "info@sbt.ua" },
-        new LocalizationTeam { Id = 2, Name = "Localize Team", ContactEmail = "contact@localize.org" }
+        new LocalizationTeam { Id = 1, Name = "SBT Localization", ContactEmail = "info@sbt.ua", OwnerId = 1 },
+        new LocalizationTeam { Id = 2, Name = "Localize Team", ContactEmail = "contact@localize.org", OwnerId = 2 }
     );
 
     var seedDate = new DateTime(2026, 04, 30, 0, 0, 0, DateTimeKind.Utc);
@@ -70,15 +104,9 @@ public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
     );
 
     modelBuilder.Entity<Localization>().HasData(
-    new Localization { Id = 1, Language = "Ukrainian", Status = "In Progress", GameId = 1 }, // P5 Royal
-    new Localization { Id = 2, Language = "Ukrainian", Status = "Completed", GameId = 8 },   // Bioshock
-    new Localization { Id = 3, Language = "English", Status = "Completed", GameId = 4 }      // Dispatch
+    new Localization { Id = 1, Language = "Ukrainian", Status = "In Progress", GameId = 1, TeamId = 1 }, // P5 Royal - SBT
+    new Localization { Id = 2, Language = "Ukrainian", Status = "Completed", GameId = 8, TeamId = 2 },   // Bioshock - Localize Team
+    new Localization { Id = 3, Language = "English", Status = "Completed", GameId = 4, TeamId = 2 }      // Dispatch - Localize Team
 );
-
-    modelBuilder.Entity("LocalizationLocalizationTeam").HasData(
-    new { LocalizationsId = 1, TeamsId = 1 }, // SBT працює над Persona 5
-    new { LocalizationsId = 2, TeamsId = 2 }, // Localize Team закінчили Bioshock
-    new { LocalizationsId = 3, TeamsId = 2 }  // Localize Team також зробили Dispatch
-    );
 }
 }

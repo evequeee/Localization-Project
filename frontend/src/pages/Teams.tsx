@@ -1,14 +1,34 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { apiGet } from '../services/api';
+import { apiGet, apiPost } from '../services/api';
 import type { Team } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 
 export const Teams = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
+  const [joiningTeamId, setJoiningTeamId] = useState<number | null>(null);
   const [followedTeams, setFollowedTeams] = useState<Record<number, boolean>>({});
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  const handleJoinTeam = async (event: React.MouseEvent, teamId: number) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setJoiningTeamId(teamId);
+
+    try {
+      await apiPost(`/api/teams/${teamId}/join`, {});
+      alert(language === 'uk' ? 'Заявку успішно надіслано!' : 'Request sent successfully!');
+    } catch (error: any) {
+      console.error('Error joining team:', error);
+      const errorMessage = error?.response?.data?.message ||
+                          error?.message ||
+                          (language === 'uk' ? 'Помилка при відправці заявки' : 'Error sending request');
+      alert(errorMessage);
+    } finally {
+      setJoiningTeamId(null);
+    }
+  };
 
   const handleToggleFollow = (event: React.MouseEvent, teamId: number) => {
     event.preventDefault();
@@ -27,11 +47,6 @@ export const Teams = () => {
       })
       .catch(err => {
         console.error("Error loading teams:", err);
-        // Mock data for testing design
-        setTeams([
-          { id: 1, name: "SBT Localization", description: "The largest community of Ukrainian game translators.", contactEmail: "info@sbt.ua" },
-          { id: 2, name: "Sandigo", description: "Team specializing in Japanese RPG translations.", contactEmail: "contact@sandigo.jp" }
-        ]);
         setLoading(false);
       });
   }, []);
@@ -108,23 +123,34 @@ export const Teams = () => {
                       </div>
                     )}
 
-                    <button
-                      type="button"
-                      onClick={(event) => handleToggleFollow(event, team.id)}
-                      className={`w-fit px-3 py-2 text-xs font-black uppercase tracking-wider border-2 transition-all duration-150 ${
-                        followedTeams[team.id]
-                          ? 'bg-p4-yellow text-p4-bg border-p4-yellow'
-                          : 'bg-p4-bg text-p4-yellow border-p4-yellow hover:bg-p4-secondary'
-                      }`}
-                    >
-                      {followedTeams[team.id] ? t('teams.following') : t('teams.follow')}
-                    </button>
-                    
+                    <div className="flex flex-col gap-2">
+                      <button
+                        type="button"
+                        onClick={(event) => handleToggleFollow(event, team.id)}
+                        className={`w-fit px-3 py-2 text-xs font-black uppercase tracking-wider border-2 transition-all duration-150 ${
+                          followedTeams[team.id]
+                            ? 'bg-p4-yellow text-p4-bg border-p4-yellow'
+                            : 'bg-p4-bg text-p4-yellow border-p4-yellow hover:bg-p4-secondary'
+                        }`}
+                      >
+                        {followedTeams[team.id] ? t('teams.following') : t('teams.follow')}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={(event) => handleJoinTeam(event, team.id)}
+                        disabled={joiningTeamId === team.id}
+                        className="w-fit px-3 py-2 text-xs font-black uppercase tracking-wider border-2 border-p4-green bg-p4-bg text-p4-green hover:bg-p4-green hover:text-p4-bg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {joiningTeamId === team.id ? (language === 'uk' ? 'НАДСИЛАННЯ...' : 'SENDING...') : (language === 'uk' ? 'ПРИЄДНАТИСЬ' : 'JOIN')}
+                      </button>
+                    </div>
+
                     <div className="flex items-center gap-2">
                       <span className="text-p4-yellow font-black text-xs uppercase">
                         ✅ {t('teams.verified')}
                       </span>
-                      <span className="text-p4-white text-xs font-black uppercase 
+                      <span className="text-p4-white text-xs font-black uppercase
                                      group-hover:text-p4-yellow transition-colors">
                         {t('teams.view_details')}
                       </span>

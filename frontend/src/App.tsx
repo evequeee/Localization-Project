@@ -9,6 +9,8 @@ import { GamesList } from './pages/GamesList';
 import { GameDetails } from './pages/GameDetails';
 import { Teams } from './pages/Teams';
 import { TeamDetails } from './pages/TeamDetails';
+import { TeamDashboard } from './pages/TeamDashboard';
+import { AdminPanel } from './pages/AdminPanel';
 import { AddGame } from './pages/AddGame';
 import { EditGame } from './pages/EditGame';
 import { AddLocalization } from './pages/AddLocalization';
@@ -22,6 +24,8 @@ const ProtectedGamesList = withProtection(GamesList);
 const ProtectedGameDetails = withProtection(GameDetails);
 const ProtectedTeams = withProtection(Teams);
 const ProtectedTeamDetails = withProtection(TeamDetails);
+const ProtectedTeamDashboard = withProtection(TeamDashboard);
+const ProtectedAdminPanel = withProtection(AdminPanel, ['Admin']);
 const ProtectedAddTeam = withProtection(AddTeam);
 const ProtectedAddGame = withProtection(AddGame, ['Admin']);
 const ProtectedEditGame = withProtection(EditGame, ['Admin']);
@@ -49,6 +53,8 @@ function App() {
               <Route path="/games/:id" element={<ProtectedGameDetails />} />
               <Route path="/teams" element={<ProtectedTeams />} />
               <Route path="/team/:teamId" element={<ProtectedTeamDetails />} />
+              <Route path="/team-dashboard" element={<ProtectedTeamDashboard />} />
+              <Route path="/admin-panel" element={<ProtectedAdminPanel />} />
               <Route path="/add-team" element={<ProtectedAddTeam />} />
               <Route path="/add-game" element={<ProtectedAddGame />} />
               <Route path="/edit-game/:gameId" element={<ProtectedEditGame />} />

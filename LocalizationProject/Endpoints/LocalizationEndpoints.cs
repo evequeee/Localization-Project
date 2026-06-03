@@ -30,13 +30,9 @@ public static class LocalizationEndpoints
         {
             Language = dto.Language,
             GameId = dto.GameId,
-            Status = string.IsNullOrWhiteSpace(dto.Status) ? "In Progress" : dto.Status
+            Status = string.IsNullOrWhiteSpace(dto.Status) ? "In Progress" : dto.Status,
+            TeamId = dto.TeamId
         };
-
-        if (team != null)
-        {
-            localization.Teams.Add(team);
-        }
 
         db.Localizations.Add(localization);
         await db.SaveChangesAsync();
@@ -47,7 +43,7 @@ public static class LocalizationEndpoints
             Language = localization.Language,
             Status = localization.Status,
             GameId = localization.GameId,
-            Teams = localization.Teams.Select(t => t.Name).ToList()
+            TeamName = localization.Team?.Name
         };
 
         return Results.Created($"/api/localizations/{localization.Id}", resultDto);
@@ -55,16 +51,16 @@ public static class LocalizationEndpoints
 
     private static async Task<IResult> AddTeamToLocalization(int locId, int teamId, AppDbContext db)
     {
-        var loc = await db.Localizations.Include(l => l.Teams).FirstOrDefaultAsync(l => l.Id == locId);
+        var loc = await db.Localizations.Include(l => l.Team).FirstOrDefaultAsync(l => l.Id == locId);
         var team = await db.Teams.FindAsync(teamId);
 
-        if (loc == null || team == null) 
+        if (loc == null || team == null)
             return Results.NotFound("Локалізацію або команду не знайдено");
 
-        if (loc.Teams.Any(t => t.Id == teamId))
+        if (loc.TeamId == teamId)
             return Results.Ok($"Команда {team.Name} вже закріплена за локалізацією {loc.Language}");
 
-        loc.Teams.Add(team);
+        loc.TeamId = teamId;
         await db.SaveChangesAsync();
 
         return Results.Ok($"Команда {team.Name} тепер працює над перекладом {loc.Language}");
@@ -73,17 +69,17 @@ public static class LocalizationEndpoints
     private static async Task<IResult> GetAllLocalizations(AppDbContext db)
     {
         var localizations = await db.Localizations
-            .Include(l => l.Teams)
+            .Include(l => l.Team)
             .Select(l => new LocalizationDto
             {
                 Id = l.Id,
                 Language = l.Language,
                 Status = l.Status,
                 GameId = l.GameId,
-                Teams = l.Teams.Select(t => t.Name).ToList()
+                TeamName = l.Team != null ? l.Team.Name : null
             })
             .ToListAsync();
-        
+
         return Results.Ok(localizations);
     }
 }

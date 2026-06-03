@@ -2,13 +2,25 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage, type Language } from '../context/LanguageContext';
 import { RoleBasedRender } from './ProtectedRoute';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { apiGet } from '../services/api';
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [isTeamOwner, setIsTeamOwner] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      apiGet('/api/teams/my-dashboard')
+        .then(() => setIsTeamOwner(true))
+        .catch(() => setIsTeamOwner(false));
+    } else {
+      setIsTeamOwner(false);
+    }
+  }, [isAuthenticated, user]);
 
   const handleLogout = () => {
     logout();
@@ -74,7 +86,7 @@ export const Navbar = () => {
               </Link>
 
               {/* Teams Link */}
-              <Link 
+              <Link
                 to="/teams"
                 onMouseEnter={() => setHoveredItem('teams')}
                 onMouseLeave={() => setHoveredItem(null)}
@@ -82,21 +94,56 @@ export const Navbar = () => {
               >
                 <span className="relative">
                   {t('nav.teams')}
-                  <span className={`absolute bottom-0 left-0 h-1 bg-p4-yellow transition-all duration-200 
+                  <span className={`absolute bottom-0 left-0 h-1 bg-p4-yellow transition-all duration-200
                                   ${hoveredItem === 'teams' ? 'w-full' : 'w-0'}`}></span>
                 </span>
               </Link>
+
+              {/* Team Dashboard Link - Team Owners Only */}
+              {isTeamOwner && (
+                <Link
+                  to="/team-dashboard"
+                  onMouseEnter={() => setHoveredItem('dashboard')}
+                  onMouseLeave={() => setHoveredItem(null)}
+                  className="p4-menu-item group relative"
+                >
+                  <span className="relative">
+                    {language === 'uk' ? 'КАБІНЕТ КОМАНДИ' : 'TEAM DASHBOARD'}
+                    <span className={`absolute bottom-0 left-0 h-1 bg-p4-yellow transition-all duration-200
+                                    ${hoveredItem === 'dashboard' ? 'w-full' : 'w-0'}`}></span>
+                  </span>
+                </Link>
+              )}
 
               {/* Add Game Button - Admin Only */}
               <RoleBasedRender
                 requiredRoles={['Admin']}
                 fallback={null}
               >
-                <Link 
-                  to="/add-game" 
+                <Link
+                  to="/add-game"
                   className="p4-button text-xs hover:bg-p4-yellow hover:border-p4-yellow hover:text-p4-bg"
                 >
                   ⚔️ {t('games.add')}
+                </Link>
+              </RoleBasedRender>
+
+              {/* Admin Panel Link - Admin Only */}
+              <RoleBasedRender
+                requiredRoles={['Admin']}
+                fallback={null}
+              >
+                <Link
+                  to="/admin-panel"
+                  onMouseEnter={() => setHoveredItem('admin')}
+                  onMouseLeave={() => setHoveredItem(null)}
+                  className="p4-menu-item group relative"
+                >
+                  <span className="relative">
+                    {language === 'uk' ? 'АДМІН ПАНЕЛЬ' : 'ADMIN PANEL'}
+                    <span className={`absolute bottom-0 left-0 h-1 bg-p4-yellow transition-all duration-200
+                                    ${hoveredItem === 'admin' ? 'w-full' : 'w-0'}`}></span>
+                  </span>
                 </Link>
               </RoleBasedRender>
 

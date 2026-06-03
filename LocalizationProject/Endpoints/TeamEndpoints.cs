@@ -2,6 +2,7 @@ using LocalizationProject.Dtos;
 using LocalizationProject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace LocalizationProject.Endpoints;
 
@@ -13,17 +14,26 @@ public static class TeamEndpoints
 
         group.MapGet("/", GetAllTeams);
         group.MapGet("/{teamId}", GetTeamById);
-        group.MapPost("/", [Authorize(Roles = $"{UserRoles.Admin}")] async (CreateTeamDto dto, AppDbContext db) => await CreateTeam(dto, db));
-        
+        group.MapPost("/", [Authorize] async (CreateTeamDto dto, AppDbContext db, HttpContext context) => await CreateTeam(dto, db, context));
+
         // Join requests endpoints
-        group.MapPost("/{teamId}/requests", [Authorize] async (int teamId, AppDbContext db, HttpContext context) => await CreateJoinRequest(teamId, db, context));
-        group.MapGet("/{teamId}/requests", [Authorize] async (int teamId, AppDbContext db, HttpContext context) => await GetTeamRequests(teamId, db, context));
-        group.MapPatch("/requests/{requestId}", [Authorize] async (int requestId, UpdateTeamJoinRequestDto dto, AppDbContext db, HttpContext context) => await UpdateJoinRequest(requestId, dto, db, context));
+        group.MapPost("/{id}/join", [Authorize] async (int id, AppDbContext db, HttpContext context) => await JoinTeam(id, db, context));
+        group.MapGet("/my-dashboard", [Authorize] async (AppDbContext db, HttpContext context) => await GetMyDashboard(db, context));
+        group.MapPost("/requests/{reqId}/approve", [Authorize] async (int reqId, AppDbContext db, HttpContext context) => await ApproveRequest(reqId, db, context));
+        group.MapPost("/requests/{reqId}/reject", [Authorize] async (int reqId, AppDbContext db, HttpContext context) => await RejectRequest(reqId, db, context));
+
+        // Admin endpoints
+        var adminGroup = app.MapGroup("/api/admin");
+        adminGroup.MapGet("/pending-teams", [Authorize(Roles = $"{UserRoles.Admin}")] async (AppDbContext db) => await GetPendingTeams(db));
+        adminGroup.MapPost("/teams/{id}/approve", [Authorize(Roles = $"{UserRoles.Admin}")] async (int id, AppDbContext db) => await ApproveTeam(id, db));
+        adminGroup.MapPost("/teams/{id}/reject", [Authorize(Roles = $"{UserRoles.Admin}")] async (int id, AppDbContext db) => await RejectTeam(id, db));
+        adminGroup.MapPost("/fix-legacy-teams", async (AppDbContext db) => await FixLegacyTeams(db));
     }
 
     private static async Task<IResult> GetAllTeams(AppDbContext db)
     {
         var teams = await db.Teams
+            .Where(t => t.IsApproved)
             .Select(t => new TeamDto
             {
                 Id = t.Id,
@@ -54,140 +64,263 @@ public static class TeamEndpoints
         return Results.Ok(team);
     }
 
-    private static async Task<IResult> CreateTeam(CreateTeamDto dto, AppDbContext db)
+    private static async Task<IResult> CreateTeam(CreateTeamDto dto, AppDbContext db, HttpContext context)
     {
+        var currentUserId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (currentUserId == null || !int.TryParse(currentUserId, out var userId))
+        {
+            return Results.Unauthorized();
+        }
+
         var newTeam = new LocalizationTeam
         {
             Name = dto.Name,
-            ContactEmail = dto.ContactEmail ?? string.Empty
+            ContactEmail = dto.ContactEmail ?? string.Empty,
+            OwnerId = userId,
+            IsApproved = false
         };
         db.Teams.Add(newTeam);
         await db.SaveChangesAsync();
-        return Results.Ok(newTeam);
+        return Results.Ok(new { message = "Заявка на створення команди відправлена модератору." });
     }
 
-    private static async Task<IResult> CreateJoinRequest(int teamId, AppDbContext db, HttpContext context)
+    private static async Task<IResult> JoinTeam(int id, AppDbContext db, HttpContext context)
     {
-        // Отримуємо ID користувача з токена
-        var userIdClaim = context.User.FindFirst("sub")?.Value;
-        if (!int.TryParse(userIdClaim, out var userId))
+        var currentUserId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (currentUserId == null || !int.TryParse(currentUserId, out var userId))
         {
             return Results.Unauthorized();
         }
 
-        // Перевіряємо, чи існує команда
-        var team = await db.Teams.FindAsync(teamId);
+        try
+        {
+            var team = await db.Teams.FindAsync(id);
+            if (team == null)
+            {
+                return Results.NotFound("Команду не знайдено.");
+            }
+
+            var requestExists = await db.TeamJoinRequests
+                .AnyAsync(r => r.UserId == userId && r.TeamId == id);
+
+            if (requestExists)
+            {
+                return Results.BadRequest("У вас вже є активна заявка до цієї команди.");
+            }
+
+            var joinRequest = new TeamJoinRequest
+            {
+                UserId = userId,
+                TeamId = id,
+                Status = JoinRequestStatus.Pending,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            db.TeamJoinRequests.Add(joinRequest);
+            await db.SaveChangesAsync();
+
+            return Results.Ok(new { message = "Заявку успішно надіслано" });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(ex.Message);
+        }
+    }
+
+    private static async Task<IResult> GetMyDashboard(AppDbContext db, HttpContext context)
+    {
+        var currentUserId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (currentUserId == null || !int.TryParse(currentUserId, out var userId))
+        {
+            return Results.Unauthorized();
+        }
+
+        var user = await db.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return Results.Unauthorized();
+        }
+
+        var team = await db.Teams
+            .Include(t => t.Localizations)
+                .ThenInclude(l => l.Game)
+            .Include(t => t.JoinRequests)
+                .ThenInclude(r => r.User)
+            .Include(t => t.Owner)
+            .FirstOrDefaultAsync(t => t.OwnerId == userId || (user.TeamId.HasValue && t.Id == user.TeamId.Value));
+
         if (team == null)
         {
-            return Results.NotFound();
+            return Results.NotFound(new { message = "Ви не є членом команди" });
         }
 
-        // Перевіряємо, чи вже є заявка від цього користувача
-        var existingRequest = await db.TeamJoinRequests
-            .FirstOrDefaultAsync(r => r.UserId == userId && r.TeamId == teamId && r.Status == "Pending");
-        
-        if (existingRequest != null)
-        {
-            return Results.BadRequest(new { message = "У вас вже є активна заявка до цієї команди" });
-        }
+        var isOwner = team.OwnerId == userId;
 
-        var joinRequest = new TeamJoinRequest
-        {
-            UserId = userId,
-            TeamId = teamId,
-            Status = "Pending",
-            CreatedAt = DateTime.UtcNow
-        };
-
-        db.TeamJoinRequests.Add(joinRequest);
-        await db.SaveChangesAsync();
-
-        return Results.Created($"/api/teams/{teamId}/requests/{joinRequest.Id}", joinRequest);
-    }
-
-    private static async Task<IResult> GetTeamRequests(int teamId, AppDbContext db, HttpContext context)
-    {
-        // Отримуємо ID користувача з токена
-        var userIdClaim = context.User.FindFirst("sub")?.Value;
-        if (!int.TryParse(userIdClaim, out var userId))
-        {
-            return Results.Unauthorized();
-        }
-
-        // Отримуємо роль користувача
-        var userRole = context.User.FindFirst("role")?.Value ??
-                       context.User.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
-
-        // Перевіряємо, чи користувач є админом команди (TODO: реалізувати правильну логіку)
-        // На даний момент дозволяємо Admin та TeamAdmin
-        if (userRole != "Admin" && userRole != "TeamAdmin")
-        {
-            return Results.Forbid();
-        }
-
-        var requests = await db.TeamJoinRequests
-            .Where(r => r.TeamId == teamId)
-            .Include(r => r.User)
-            .OrderByDescending(r => r.CreatedAt)
-            .Select(r => new TeamJoinRequestDto
+        var projects = team.Localizations
+            .Select(l => new
             {
-                Id = r.Id,
-                UserId = r.UserId,
-                UserEmail = r.User!.Email ?? string.Empty,
-                TeamId = r.TeamId,
-                Status = r.Status,
-                CreatedAt = r.CreatedAt,
-                ResolvedAt = r.ResolvedAt
+                l.Id,
+                l.Language,
+                l.Status,
+                GameTitle = l.Game.Title
+            })
+            .ToList();
+
+        var members = await db.Users
+            .Where(u => u.TeamId == team.Id)
+            .Select(u => new
+            {
+                u.Id,
+                u.UserName,
+                u.Email
             })
             .ToListAsync();
 
-        return Results.Ok(requests);
+        var requests = team.JoinRequests
+            .Where(r => r.Status == JoinRequestStatus.Pending)
+            .Select(r => new
+            {
+                r.Id,
+                r.UserId,
+                UserName = r.User != null ? r.User.UserName : "Unknown",
+                UserEmail = r.User != null ? r.User.Email : "Unknown",
+                r.CreatedAt
+            })
+            .ToList();
+
+        return Results.Ok(new
+        {
+            Team = new
+            {
+                team.Id,
+                team.Name,
+                team.ContactEmail,
+                team.IsApproved
+            },
+            Projects = projects,
+            Members = members,
+            Requests = requests,
+            IsOwner = isOwner
+        });
     }
 
-    private static async Task<IResult> UpdateJoinRequest(int requestId, UpdateTeamJoinRequestDto dto, AppDbContext db, HttpContext context)
+    private static async Task<IResult> ApproveRequest(int reqId, AppDbContext db, HttpContext context)
     {
-        // Отримуємо ID користувача з токена
-        var userIdClaim = context.User.FindFirst("sub")?.Value;
-        if (!int.TryParse(userIdClaim, out var userId))
+        var currentUserId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (currentUserId == null || !int.TryParse(currentUserId, out var userId))
         {
             return Results.Unauthorized();
         }
 
-        // Отримуємо роль користувача
-        var userRole = context.User.FindFirst("role")?.Value ??
-                       context.User.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+        var request = await db.TeamJoinRequests
+            .Include(r => r.Team)
+            .FirstOrDefaultAsync(r => r.Id == reqId);
 
-        // Перевіряємо, чи користувач має право на це
-        if (userRole != "Admin" && userRole != "TeamAdmin")
-        {
-            return Results.Forbid();
-        }
-
-        var request = await db.TeamJoinRequests.FindAsync(requestId);
         if (request == null)
         {
             return Results.NotFound();
         }
 
-        // Валідація статусу
-        if (!new[] { "Approved", "Rejected" }.Contains(dto.Status))
+        if (request.Team == null || request.Team.OwnerId != userId)
         {
-            return Results.BadRequest(new { message = "Невалідний статус" });
+            return Results.Forbid();
         }
 
-        request.Status = dto.Status;
+        request.Status = JoinRequestStatus.Approved;
+        request.ResolvedAt = DateTime.UtcNow;
+
+        var user = await db.Users.FindAsync(request.UserId);
+        if (user != null)
+        {
+            user.TeamId = request.TeamId;
+        }
+
+        await db.SaveChangesAsync();
+
+        return Results.Ok(new { message = "Заявку схвалено" });
+    }
+
+    private static async Task<IResult> RejectRequest(int reqId, AppDbContext db, HttpContext context)
+    {
+        var currentUserId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (currentUserId == null || !int.TryParse(currentUserId, out var userId))
+        {
+            return Results.Unauthorized();
+        }
+
+        var request = await db.TeamJoinRequests
+            .Include(r => r.Team)
+            .FirstOrDefaultAsync(r => r.Id == reqId);
+
+        if (request == null)
+        {
+            return Results.NotFound();
+        }
+
+        if (request.Team == null || request.Team.OwnerId != userId)
+        {
+            return Results.Forbid();
+        }
+
+        request.Status = JoinRequestStatus.Rejected;
         request.ResolvedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
 
-        return Results.Ok(new TeamJoinRequestDto
+        return Results.Ok(new { message = "Заявку відхилено" });
+    }
+
+    private static async Task<IResult> GetPendingTeams(AppDbContext db)
+    {
+        var pendingTeams = await db.Teams
+            .Include(t => t.Owner)
+            .Where(t => !t.IsApproved)
+            .Select(t => new
+            {
+                t.Id,
+                t.Name,
+                t.ContactEmail,
+                OwnerEmail = t.Owner.Email,
+                OwnerName = t.Owner.UserName
+            })
+            .ToListAsync();
+
+        return Results.Ok(pendingTeams);
+    }
+
+    private static async Task<IResult> ApproveTeam(int id, AppDbContext db)
+    {
+        var team = await db.Teams.FindAsync(id);
+        if (team == null)
         {
-            Id = request.Id,
-            UserId = request.UserId,
-            TeamId = request.TeamId,
-            Status = request.Status,
-            CreatedAt = request.CreatedAt,
-            ResolvedAt = request.ResolvedAt
-        });
+            return Results.NotFound("Команду не знайдено.");
+        }
+
+        team.IsApproved = true;
+        await db.SaveChangesAsync();
+
+        return Results.Ok(new { message = "Команду схвалено." });
+    }
+
+    private static async Task<IResult> RejectTeam(int id, AppDbContext db)
+    {
+        var team = await db.Teams.FindAsync(id);
+        if (team == null)
+        {
+            return Results.NotFound("Команду не знайдено.");
+        }
+
+        db.Teams.Remove(team);
+        await db.SaveChangesAsync();
+
+        return Results.Ok(new { message = "Команду відхилено." });
+    }
+
+    private static async Task<IResult> FixLegacyTeams(AppDbContext db)
+    {
+        var updated = await db.Teams
+            .ExecuteUpdateAsync(s => s.SetProperty(t => t.IsApproved, true));
+
+        return Results.Ok(new { message = $"Відновлено {updated} команд." });
     }
 }

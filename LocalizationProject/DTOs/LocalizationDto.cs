@@ -6,7 +6,7 @@ public class LocalizationDto
     public string Language { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public int GameId { get; set; }
-    public List<string> Teams { get; set; } = new();
+    public string? TeamName { get; set; }
 }
 
 public class CreateLocalizationDto
