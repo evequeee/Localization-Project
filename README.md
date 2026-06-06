@@ -34,6 +34,10 @@ A comprehensive web platform and community created to unite Ukrainian teams of t
 - [x] **JWT Authentication:** Tokens, registration, login, authorization
 - [x] **RBAC (Role-Based Access Control):** Admin, TeamAdmin, User roles with endpoint access checks
 - [x] **Seed Data:** Automatic test Admin user creation
+- [x] **Team Approval Workflow:** New teams require admin approval before being visible
+- [x] **Team Dashboard:** Endpoint for team owners and members to view team data
+- [x] **Admin Panel:** Endpoints for moderating pending teams (approve/reject)
+- [x] **Team Requests:** Endpoints for approving/rejecting team join requests
 
 ### Frontend
 - [x] React components with Persona 4 Golden design
@@ -42,7 +46,7 @@ A comprehensive web platform and community created to unite Ukrainian teams of t
 - [x] Custom useAuth hook for accessing auth state
 - [x] ProtectedRoute component with redirect for unauthorized users
 - [x] ErrorBoundary component for error handling
-- [x] Pages: Login, Register, Home, GamesList, Teams, AddGame, AddLocalization, AddTeam
+- [x] Pages: Login, Register, Home, GamesList, Teams, AddGame, AddLocalization, AddTeam, TeamDashboard, AdminPanel, TeamDetails
 - [x] **CRUD Forms with proper handling:**
   - Loading state on button (disabled on submit)
   - Error banners for displaying errors
@@ -53,6 +57,11 @@ A comprehensive web platform and community created to unite Ukrainian teams of t
 - [x] **Floating API Tester button** at bottom left (visible only for Admin)
 - [x] Automatic JWT token addition to all requests (fetch interceptor)
 - [x] 401/403 error handling with redirect to login
+- [x] **Team Dashboard:** View team projects, members, and join requests (for team owners and members)
+- [x] **Admin Panel:** Moderate pending teams with approve/reject functionality
+- [x] **Team Requests Panel:** Approve/reject team join requests with P4G-styled buttons
+- [x] **Join Team Button:** Request to join teams with pending state indication
+- [x] **Improved Text Contrast:** Enhanced readability across all pages with proper text colors
 
 ## API Endpoints (Authentication)
 
@@ -108,12 +117,14 @@ docker-compose up --build
 
 | HTTP Method | Route | Description | Authorization | Request Body |
 | :--- | :--- | :--- | :--- | :--- |
-| **GET** | `/api/teams` | Get list of all teams | Public | - |
+| **GET** | `/api/teams` | Get list of all approved teams | Public | - |
 | **GET** | `/api/teams/{teamId}` | Get team details by ID | Public | - |
-| **POST** | `/api/teams` | Add a new team | Admin | `CreateTeamDto` (JSON) |
-| **POST** | `/api/teams/{teamId}/requests` | Create a team join request | User (Authorize) | - |
-| **GET** | `/api/teams/{teamId}/requests` | Get team join requests | TeamAdmin, Admin | - |
-| **PATCH** | `/api/teams/requests/{requestId}` | Approve/reject team join request | TeamAdmin, Admin | `UpdateTeamJoinRequestDto` (JSON) |
+| **POST** | `/api/teams` | Add a new team (requires approval) | User (Authorize) | `CreateTeamDto` (JSON) |
+| **POST** | `/api/teams/{id}/join` | Request to join a team | User (Authorize) | - |
+| **GET** | `/api/teams/{id}/requests` | Get pending join requests for a team | TeamAdmin, Admin | - |
+| **GET** | `/api/teams/my-dashboard` | Get team dashboard data (for team owners/members) | User (Authorize) | - |
+| **POST** | `/api/teams/requests/{reqId}/approve` | Approve a team join request | User (Authorize) | - |
+| **POST** | `/api/teams/requests/{reqId}/reject` | Reject a team join request | User (Authorize) | - |
 
 ## API Endpoints (Localizations)
 
@@ -122,6 +133,15 @@ docker-compose up --build
 | **GET** | `/api/localizations` | Get all localizations with their teams | Public | - |
 | **POST** | `/api/localizations` | Create a new localization for a game | Admin | `CreateLocalizationDto` (JSON) |
 | **POST** | `/api/localizations/{locId}/teams/{teamId}` | Assign team to localization | Admin, TeamAdmin | - |
+
+## API Endpoints (Admin)
+
+| HTTP Method | Route | Description | Authorization | Request Body |
+| :--- | :--- | :--- | :--- | :--- |
+| **GET** | `/api/admin/pending-teams` | Get list of pending teams awaiting approval | Admin | - |
+| **POST** | `/api/admin/teams/{id}/approve` | Approve a pending team | Admin | - |
+| **POST** | `/api/admin/teams/{id}/reject` | Reject a pending team (deletes it) | Admin | - |
+| **POST** | `/api/admin/fix-legacy-teams` | Fix legacy teams (set all to approved) | Admin | - |
 
 > **Important:** 
 > - POST and PUT requests undergo strict validation. For incorrect data, the server returns `400 Bad Request` with error details.

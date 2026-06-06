@@ -10,18 +10,18 @@ export const AddGame = () => {
 
   const languageOptions = language === 'uk'
     ? [
-      { value: 'English', label: 'Англійська' },
-      { value: 'Japanese', label: 'Японська' },
-      { value: 'Korean', label: 'Корейська' },
-      { value: 'Ukrainian', label: 'Українська' },
-      { value: 'Other', label: 'Інша' }
+      { value: 'ENG', label: 'Англійська' },
+      { value: 'JPN', label: 'Японська' },
+      { value: 'KR', label: 'Корейська' },
+      { value: 'UA', label: 'Українська' },
+      { value: 'OTH', label: 'Інша' }
     ]
     : [
-      { value: 'English', label: 'English' },
-      { value: 'Japanese', label: 'Japanese' },
-      { value: 'Korean', label: 'Korean' },
-      { value: 'Ukrainian', label: 'Ukrainian' },
-      { value: 'Other', label: 'Other' }
+      { value: 'ENG', label: 'English' },
+      { value: 'JPN', label: 'Japanese' },
+      { value: 'KR', label: 'Korean' },
+      { value: 'UA', label: 'Ukrainian' },
+      { value: 'OTH', label: 'Other' }
     ];
 
   const statusOptions = language === 'uk'
