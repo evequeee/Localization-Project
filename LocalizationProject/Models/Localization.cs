@@ -11,4 +11,5 @@ public class Localization
 
     public int? TeamId { get; set; } // Team responsible for this localization
     public LocalizationTeam? Team { get; set; }
+    public DateTime? TargetUpdateDeadline { get; set; }
 }

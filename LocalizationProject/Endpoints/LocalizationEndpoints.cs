@@ -31,7 +31,8 @@ public static class LocalizationEndpoints
             Language = dto.Language,
             GameId = dto.GameId,
             Status = string.IsNullOrWhiteSpace(dto.Status) ? "In Progress" : dto.Status,
-            TeamId = dto.TeamId
+            TeamId = dto.TeamId,
+            TargetUpdateDeadline = dto.TargetUpdateDeadline
         };
 
         db.Localizations.Add(localization);

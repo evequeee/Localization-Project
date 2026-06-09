@@ -15,7 +15,8 @@ public class LocalizationDto
     public int GameId { get; set; }
 
     public List<string> Teams { get; set; } = new();
-
+    public DateTime? TargetUpdateDeadline { get; set; }
+    public string? TeamName { get; internal set; }
 }
 
 
@@ -31,5 +32,6 @@ public class CreateLocalizationDto
     public int? TeamId { get; set; }
 
     public string? Status { get; set; }
+    public DateTime? TargetUpdateDeadline { get; set; }
 
 }
